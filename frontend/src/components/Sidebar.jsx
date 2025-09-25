@@ -20,6 +20,7 @@ export function Sidebar() {
     <div className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
+        <img className="logo" src="rendlogo.png" alt="log de rendix" />
         <h1>Rendix</h1>
       </div>
 
