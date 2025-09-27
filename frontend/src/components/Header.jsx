@@ -1,11 +1,22 @@
-export function Header() {
+"use client"
+
+const pageNames = {
+  dashboard: "Dashboard",
+  actividades: "Actividades",
+  ventas: "Ventas",
+  gastos: "Gastos",
+  liquidaciones: "Liquidaciones",
+  reportes: "Reportes",
+}
+
+export function Header({ currentPage, isDarkMode, onThemeToggle }) {
   return (
     <header className="header">
       {/* Breadcrumb */}
       <div className="breadcrumb">
         <span className="breadcrumb-item">Dashboard</span>
         <span className="breadcrumb-item">/</span>
-        <span className="breadcrumb-current">Resumen</span>
+        <span className="breadcrumb-current">{pageNames[currentPage] || "Dashboard"}</span>
       </div>
 
       {/* Right side */}
@@ -15,6 +26,14 @@ export function Header() {
           <span className="icon">📅</span>
           Últimos 30 días
           <span className="icon">▼</span>
+        </button>
+
+        <button
+          className="btn btn-ghost"
+          onClick={onThemeToggle}
+          title={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        >
+          <span className="icon">{isDarkMode ? "☀️" : "🌙"}</span>
         </button>
 
         {/* Export button */}

@@ -1,9 +1,7 @@
 "use client"
 
-import { useState } from "react"
-
 const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: "📊", active: true },
+  { id: "dashboard", label: "Dashboard", icon: "📊" },
   { id: "ventas", label: "Ventas", icon: "📈" },
   { id: "actividades", label: "Actividades", icon: "👥" },
   { id: "liquidaciones", label: "Liquidaciones", icon: "📄" },
@@ -13,9 +11,7 @@ const menuItems = [
 
 const shortcuts = [{ id: "inventar", label: "Inventar", icon: "📦" }]
 
-export function Sidebar() {
-  const [activeItem, setActiveItem] = useState("dashboard")
-
+export function Sidebar({ currentPage, onPageChange }) {
   return (
     <div className="sidebar">
       {/* Logo */}
@@ -29,12 +25,12 @@ export function Sidebar() {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => setActiveItem(item.id)}
-            className={`nav-item ${activeItem === item.id ? "active" : ""}`}
+            onClick={() => onPageChange(item.id)}
+            className={`nav-item ${currentPage === item.id ? "active" : ""}`}
           >
             <span className="icon">{item.icon}</span>
             {item.label}
-            {activeItem === item.id && <span style={{ marginLeft: "auto" }}>›</span>}
+            {currentPage === item.id && <span style={{ marginLeft: "auto" }}>›</span>}
           </button>
         ))}
 
