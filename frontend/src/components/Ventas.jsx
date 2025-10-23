@@ -196,7 +196,7 @@ const Ventas = () => {
                       </p>
                     ))}
                     <p style={{ marginTop: "4px", fontWeight: "600" }}>
-                      Total: ${venta.total.toFixed(2)}
+                      Total: ${venta.totalVenta.toFixed(2)}
                     </p>
                   </div>
                 ))
