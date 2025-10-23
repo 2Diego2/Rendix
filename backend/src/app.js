@@ -1,18 +1,17 @@
-// backend/src/app.js
-const express = require('express');
+const express = require("express");
+const cors = require("cors");
+const ventasRouter = require("./routes/ventas"); // ruta correcta
 const app = express();
 
-// Para poder leer JSON en requests
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+}));
+
 app.use(express.json());
 
-// Importar el router de usuarios
-const usuariosRouter = require('./routes/usuarios');
+// Rutas
+app.use("/ventas", ventasRouter);
 
-// Usar el router en la ruta /usuarios
-app.use('/usuarios', usuariosRouter);
-
-// Levantar servidor
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-});
+app.listen(3001, () => console.log("Servidor corriendo en puerto 3001"));

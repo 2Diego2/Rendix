@@ -1,0 +1,13 @@
+[
+  {
+    "hora": "18:05:05",
+    "productos": [
+      {
+        "nombre": "Remera",
+        "cantidad": 1,
+        "precio": 2000
+      }
+    ],
+    "totalVenta": 2000
+  }
+]
