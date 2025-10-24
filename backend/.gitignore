@@ -4,3 +4,4 @@ node_modules
 
 /src/generated/prisma
 /ventas_data
+/gastos_data

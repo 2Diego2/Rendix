@@ -1,0 +1,18 @@
+[
+  {
+    "hora": "20:38:42",
+    "concepto": "Sueldos",
+    "descripcion": "Pago de empleados",
+    "monto": 120000,
+    "fecha": "2025-10-24",
+    "categoria": "Fijo"
+  },
+  {
+    "hora": "20:38:56",
+    "concepto": "Compras de ropa",
+    "descripcion": "Reposición de stock",
+    "monto": 120000,
+    "fecha": "2025-10-24",
+    "categoria": "Variable"
+  }
+]
