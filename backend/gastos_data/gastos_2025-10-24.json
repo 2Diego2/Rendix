@@ -14,5 +14,29 @@
     "monto": 120000,
     "fecha": "2025-10-24",
     "categoria": "Variable"
+  },
+  {
+    "hora": "20:46:42",
+    "concepto": "Sueldos",
+    "descripcion": "Pago de empleados",
+    "monto": 20000,
+    "fecha": "2025-10-24",
+    "categoria": "Fijo"
+  },
+  {
+    "hora": "20:49:32",
+    "concepto": "Sueldos",
+    "descripcion": "Pago de empleados",
+    "monto": 20000000,
+    "fecha": "2025-10-24",
+    "categoria": "Fijo"
+  },
+  {
+    "hora": "20:49:37",
+    "concepto": "Compras de ropa",
+    "descripcion": "Reposición de stock",
+    "monto": 500000,
+    "fecha": "2025-10-24",
+    "categoria": "Variable"
   }
 ]

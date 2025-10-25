@@ -1,119 +1,101 @@
-const chartData = [
-  { month: "Ene", contrataciones: 45, bajas: 12 },
-  { month: "Feb", contrataciones: 52, bajas: 18 },
-  { month: "Mar", contrataciones: 48, bajas: 15 },
-  { month: "Abr", contrataciones: 61, bajas: 22 },
-  { month: "May", contrataciones: 55, bajas: 19 },
-  { month: "Jun", contrataciones: 67, bajas: 25 },
-  { month: "Jul", contrataciones: 59, bajas: 21 },
-  { month: "Ago", contrataciones: 64, bajas: 28 },
-  { month: "Sep", contrataciones: 58, bajas: 24 },
-  { month: "Oct", contrataciones: 72, bajas: 31 },
-  { month: "Nov", contrataciones: 69, bajas: 27 },
-  { month: "Dic", contrataciones: 75, bajas: 33 },
-]
-
-function SimpleBarChart({ data }) {
-  const maxValue = Math.max(...data.flatMap((d) => [d.contrataciones, d.bajas]))
-
-  return (
-    <div style={{ display: "flex", alignItems: "end", gap: "8px", height: "280px", padding: "20px 0" }}>
-      {data.map((item, index) => (
-        <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "end", gap: "2px", marginBottom: "8px" }}>
-            <div
-              style={{
-                width: "16px",
-                height: `${(item.contrataciones / maxValue) * 200}px`,
-                backgroundColor: "var(--chart-1)",
-                borderRadius: "2px 2px 0 0",
-                minHeight: "4px",
-              }}
-              title={`Contrataciones: ${item.contrataciones}`}
-            />
-            <div
-              style={{
-                width: "16px",
-                height: `${(item.bajas / maxValue) * 200}px`,
-                backgroundColor: "var(--chart-2)",
-                borderRadius: "2px 2px 0 0",
-                minHeight: "4px",
-              }}
-              title={`Bajas: ${item.bajas}`}
-            />
-          </div>
-          <span style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>{item.month}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
+import React, { useEffect, useState } from "react";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
 export function DashboardContent() {
+  const [ventas, setVentas] = useState({ total: 0, cantidad: 0 });
+  const [gastos, setGastos] = useState({ total: 0, cantidad: 0 });
+  const [periodo, setPeriodo] = useState("hoy"); // 'hoy' | 'semana' | 'mes'
+  const [loading, setLoading] = useState(true);
+
+  // Cargar datos desde el backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [resVentas, resGastos] = await Promise.all([
+          fetch(`http://localhost:3001/ventas/${periodo}`),
+          fetch(`http://localhost:3001/gastos/${periodo}`)
+        ]);
+
+        const dataVentas = await resVentas.json();
+        const dataGastos = await resGastos.json();
+
+        setVentas({ total: dataVentas.totalHoy || 0, cantidad: dataVentas.cantidadHoy || 0 });
+        setGastos({ total: dataGastos.totalHoy || 0, cantidad: dataGastos.cantidadHoy || 0 });
+      } catch (err) {
+        console.error("Error al obtener datos:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [periodo]);
+
+  const dataPie = [
+    { name: "Ventas", value: ventas.total },
+    { name: "Gastos", value: gastos.total }
+  ];
+
+  const COLORS = ["#0088FE", "#FF8042"];
+
+  if (loading) return <div className="dashboard-content">Cargando datos...</div>;
+
   return (
     <div className="dashboard-content">
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Nuevas Contrataciones</div>
-          </div>
-          <div className="stat-value" style={{ color: "var(--chart-1)" }}>
-            40
-          </div>
-          <div className="stat-change">+12% desde el mes pasado</div>
+      <h2 className="text-2xl font-semibold mb-4">Dashboard General</h2>
+
+      {/* Selector de periodo */}
+      <div className="periodo-selector mb-6">
+        <label>Periodo: </label>
+        <select
+          value={periodo}
+          onChange={(e) => setPeriodo(e.target.value)}
+          style={{ marginLeft: "8px", padding: "4px" }}
+        >
+          <option value="hoy">Hoy</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mes</option>
+        </select>
+      </div>
+
+      {/* Tarjetas de resumen */}
+      <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+        <div className="card p-4 rounded-xl shadow-md bg-white">
+          <h3 className="font-semibold text-lg mb-2">Ventas ({periodo})</h3>
+          <p className="text-2xl font-bold text-blue-600">${ventas.total.toLocaleString()}</p>
+          <span className="text-sm text-gray-500">{ventas.cantidad} operaciones registradas</span>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Bajas</div>
-          </div>
-          <div className="stat-value" style={{ color: "var(--chart-2)" }}>
-            15
-          </div>
-          <div className="stat-change">-8% desde el mes pasado</div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Total Empleados</div>
-          </div>
-          <div className="stat-value">1,247</div>
-          <div className="stat-change">+3% desde el mes pasado</div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Tasa de Retención</div>
-          </div>
-          <div className="stat-value">94.2%</div>
-          <div className="stat-change">+1.2% desde el mes pasado</div>
+        <div className="card p-4 rounded-xl shadow-md bg-white">
+          <h3 className="font-semibold text-lg mb-2">Gastos ({periodo})</h3>
+          <p className="text-2xl font-bold text-red-500">${gastos.total.toLocaleString()}</p>
+          <span className="text-sm text-gray-500">{gastos.cantidad} gastos registrados</span>
         </div>
       </div>
 
-      {/* Main Chart */}
-      <div className="chart-card">
-        <div className="chart-header">
-          <div className="chart-title">Contrataciones vs. Bajas</div>
-          <div className="chart-subtitle">Comparativa mensual del último año</div>
-        </div>
-
-        <div className="chart-container">
-          <SimpleBarChart data={chartData} />
-        </div>
-
-        {/* Legend */}
-        <div className="chart-legend">
-          <div className="legend-item">
-            <div className="legend-color contrataciones"></div>
-            <span className="legend-text">Contrataciones</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color bajas"></div>
-            <span className="legend-text">Bajas</span>
-          </div>
-        </div>
+      {/* Gráfico de torta */}
+      <div className="chart-card mt-8 p-4 rounded-xl shadow-md bg-white">
+        <h3 className="font-semibold mb-2">Relación Ventas vs Gastos</h3>
+        <PieChart width={400} height={300}>
+          <Pie
+            data={dataPie}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius={120}
+            fill="#8884d8"
+            dataKey="value"
+          >
+            {dataPie.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
       </div>
     </div>
-  )
+  );
 }
