@@ -5,6 +5,8 @@ const router = express.Router();
 
 const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
 const obtenerHoraActual = () => new Date().toTimeString().split(" ")[0];
+const obtenerFechaISO = (fecha) => fecha.toISOString().split("T")[0];
+
 
 const rutaVentas = path.join(process.cwd(), "ventas_data");; // carpeta donde se guardan los json
 
@@ -62,5 +64,37 @@ router.post("/", (req, res) => {
     cantidadHoy: ventasHoy.length,
   });
 });
+
+// Obtener ventas por rango de días
+router.get("/rango", (req, res) => {
+  const dias = parseInt(req.query.dias) || 30;
+  
+  let todasLasVentas = [];
+  
+  for (let i = 0; i < dias; i++) {
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() - i);
+    const fechaISO = obtenerFechaISO(fecha);
+    
+    const archivoDia = path.join(rutaVentas, `ventas_${fechaISO}.json`);
+    
+    if (fs.existsSync(archivoDia)) {
+      try {
+        const ventasDia = JSON.parse(fs.readFileSync(archivoDia));
+        todasLasVentas.push(...ventasDia);
+      } catch (e) {
+        console.error(`Error al leer el archivo ${archivoDia}:`, e);
+      }
+    }
+  }
+
+  const total = todasLasVentas.reduce((acc, v) => acc + v.totalVenta, 0);
+  res.json({
+    ventasHoy: todasLasVentas, // Usamos la misma propiedad 'ventasHoy'
+    totalHoy: total,
+    cantidadHoy: todasLasVentas.length,
+  });
+});
+
 
 module.exports = router;

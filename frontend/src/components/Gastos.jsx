@@ -8,9 +8,9 @@ export function Gastos() {
 
   useEffect(() => {
     // Cargar gastos desde el backend
-    fetch("http://localhost:3001/gastos")
+    fetch("http://localhost:3001/gastos/hoy")
       .then((res) => res.json())
-      .then((data) => setGastos(data))
+      .then((data) => setGastos(data.gastosHoy))
       .catch(() => console.log("No se pudieron cargar los gastos."))
   }, [])
 
@@ -59,9 +59,9 @@ export function Gastos() {
       body: JSON.stringify(nuevosGastos),
     })
       .then((res) => res.json())
-      .then(() => {
-        // ✅ Actualiza el estado sumando los nuevos gastos
-        setGastos((prev) => [...prev, ...nuevosGastos])
+      .then((data) => { // ✅ Recibe la respuesta del backend
+        // Actualiza el estado con los datos del servidor
+        setGastos(data.gastosHoy); 
       })
       .catch((err) => console.error("Error al guardar gastos:", err))
 
