@@ -1,30 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+// 1. Importamos el hook del FiltroContext
+import { useFiltro } from './Filtro/FiltroContext'; // (Asegúrate que la ruta sea correcta)
 
 const Ventas = () => {
+  // 2. Leemos el rango de días del contexto
+  const { rangoDias } = useFiltro();
+
   const [ventas, setVentas] = useState([]);
-  const [totalHoy, setTotalHoy] = useState(0);
-  const [cantidadHoy, setCantidadHoy] = useState(0);
+  // 3. Renombramos los estados para que sean genéricos (no solo "hoy")
+  const [totalPeriodo, setTotalPeriodo] = useState(0);
+  const [cantidadPeriodo, setCantidadPeriodo] = useState(0);
+
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([{ nombre: "", cantidad: 1, precio: "" }]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Estado de carga para el fetch inicial
 
-  // Cargar ventas del día
-  useEffect(() => {
-    obtenerVentas();
-  }, []);
+  // 4. Creamos una función para obtener la etiqueta del período
+  const getPeriodoLabel = (dias) => {
+    if (dias === 0) return "Hoy";
+    return `Últimos ${dias} días`;
+  };
+  const periodoLabel = getPeriodoLabel(rangoDias);
 
-  const obtenerVentas = async () => {
+  // 5. Definimos la función de carga de datos con useCallback
+  // La envolvemos en useCallback para que pueda ser llamada desde realizarVenta sin crear bucles
+  const obtenerVentas = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3001/ventas/hoy");
-      setVentas(res.data.ventasHoy);
-      setTotalHoy(res.data.totalHoy);
-      setCantidadHoy(res.data.cantidadHoy);
+      // 6. Decidimos qué endpoint usar basado en 'rangoDias'
+      const endpoint = rangoDias === 0
+        ? "http://localhost:3001/ventas/hoy"
+        : `http://localhost:3001/ventas/rango?dias=${rangoDias}`;
+
+      const res = await axios.get(endpoint);
+      
+      setVentas(res.data.ventasHoy || []);
+      setTotalPeriodo(res.data.totalHoy || 0);
+      setCantidadPeriodo(res.data.cantidadHoy || 0);
     } catch (err) {
       console.error("Error al obtener ventas:", err);
+      setVentas([]);
+      setTotalPeriodo(0);
+      setCantidadPeriodo(0);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [rangoDias]); // Esta función se re-crea si 'rangoDias' cambia
 
+  // 7. El useEffect ahora solo llama a 'obtenerVentas'
+  useEffect(() => {
+    obtenerVentas();
+  }, [obtenerVentas]); // Se ejecuta cuando la función (y 'rangoDias') cambia
+
+  // --- Lógica del formulario (sin cambios) ---
   const handleProductoChange = (index, campo, valor) => {
     const nuevosProductos = [...productos];
     nuevosProductos[index][campo] = valor;
@@ -39,6 +68,7 @@ const Ventas = () => {
     const nuevosProductos = productos.filter((_, i) => i !== index);
     setProductos(nuevosProductos);
   };
+  // ------------------------------------------
 
   const realizarVenta = async () => {
     const productosValidos = productos.filter(
@@ -46,18 +76,22 @@ const Ventas = () => {
     );
 
     if (productosValidos.length === 0) {
-      alert("Agrega al menos un producto con nombre, cantidad y precio válidos.");
+      // Deberías usar un modal aquí, 'alert' puede no funcionar.
+      console.error("Agrega al menos un producto válido.");
       return;
     }
 
     try {
-      setLoading(true);
-      const res = await axios.post("http://localhost:3001/ventas", {
+      setLoading(true); // Usamos el 'loading' general
+      await axios.post("http://localhost:3001/ventas", {
         productos: productosValidos,
       });
-      setVentas(res.data.ventasHoy);
-      setTotalHoy(res.data.totalHoy);
-      setCantidadHoy(res.data.cantidadHoy);
+      
+      // 8. IMPORTANTE: Volvemos a llamar a 'obtenerVentas'
+      // Esto recarga la lista con el filtro actual ('rangoDias')
+      // y asegura que la nueva venta (de hoy) aparezca si el filtro es >= 0.
+      await obtenerVentas(); 
+
       setProductos([{ nombre: "", cantidad: 1, precio: "" }]);
       setMostrarFormulario(false);
     } catch (err) {
@@ -70,11 +104,12 @@ const Ventas = () => {
   return (
     <div className="dashboard-content">
       <div className="stats-grid">
-        {/* Ticket Promedio / Total del Día */}
+        {/* Formulario de Venta */}
         <div className="card">
           <div className="card-header">
             <p className="card-title">Realizar venta</p>
-            <h2 className="stat-value">Total del día: ${totalHoy.toFixed(2)}</h2>
+            {/* 9. Actualizamos el texto del total */}
+            <h2 className="stat-value">Total ({periodoLabel}): ${totalPeriodo.toFixed(2)}</h2>
           </div>
 
           <button
@@ -86,8 +121,8 @@ const Ventas = () => {
 
           {mostrarFormulario && (
             <div style={{ marginTop: "20px" }}>
+              {/* ... (El resto del formulario no cambia) ... */}
               <h4 style={{ marginBottom: "10px" }}>Nueva venta</h4>
-
               {productos.map((producto, index) => (
                 <div
                   key={index}
@@ -149,11 +184,9 @@ const Ventas = () => {
                   </button>
                 </div>
               ))}
-
               <button className="btn btn-outline" onClick={agregarProducto}>
                 + Agregar producto
               </button>
-
               <div style={{ marginTop: "15px" }}>
                 <button
                   className="btn btn-primary"
@@ -170,26 +203,35 @@ const Ventas = () => {
         {/* Registro de Ventas */}
         <div className="card">
           <div className="card-header">
-            <p className="card-title">Registro de ventas del día</p>
-            <p className="stat-change">({ventas.length} ventas)</p>
+            {/* 10. Actualizamos el título del registro */}
+            <p className="card-title">Registro de ventas ({periodoLabel})</p>
+            <p className="stat-change">({cantidadPeriodo} ventas)</p>
           </div>
 
           <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-            {ventas.length === 0 ? (
-              <p style={{ color: "var(--muted-foreground)" }}>No hay ventas registradas hoy.</p>
+            {loading ? (
+              <p>Cargando ventas...</p>
+            ) : ventas.length === 0 ? (
+              <p style={{ color: "var(--muted-foreground)" }}>No hay ventas registradas en este período.</p>
             ) : (
               ventas
                 .slice()
                 .reverse()
-                .map((venta) => (
+                // Usamos 'index' como 'key' temporal porque tu backend no genera IDs
+                .map((venta, index) => ( 
                   <div
-                    key={venta.id}
+                    key={`${venta.hora}-${index}`} // Key más robusta
                     style={{
                       borderBottom: "1px solid var(--border)",
                       padding: "10px 0",
                     }}
                   >
-                    <p style={{ fontWeight: "500" }}>Venta #{venta.id}</p>
+                    {/* Mostramos 'fecha' y 'hora' ya que el backend las provee */}
+                    <p style={{ fontWeight: "500" }}>
+                      {/* (Tu backend aún no guarda la fecha en el objeto, 
+                         lo solucionaremos en el paso 3, por ahora usamos la hora) */}
+                      Venta de las {venta.hora}
+                    </p>
                     {venta.productos.map((p, i) => (
                       <p key={i} style={{ fontSize: "14px", color: "var(--muted-foreground)" }}>
                         {p.nombre} x{p.cantidad} - ${p.precio}
