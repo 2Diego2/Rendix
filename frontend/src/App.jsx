@@ -11,6 +11,7 @@ import { Gastos } from "./components/Gastos"
 import { Liquidaciones } from "./components/Liquidaciones"
 import { Reportes } from "./components/Reportes"
 import Login from './components/Login';
+import Vendedoras from "./components/Vendedoras"
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState("dashboard")
@@ -64,6 +65,8 @@ export default function Home() {
         return <Liquidaciones />
       case "reportes":
         return <Reportes />
+        case "gestionar_vendedoras":
+        return <Vendedoras />
       default:
         return <DashboardContent />
     }

@@ -7,6 +7,7 @@ const menuItems = [
   { id: "liquidaciones", label: "Liquidaciones", icon: "📄" },
   { id: "gastos", label: "Gastos", icon: "💰" },
   { id: "reportes", label: "Reportes", icon: "📊" },
+  { id: "gestionar_vendedoras", label: "Gestionar vendedoras", icon: "👩‍💼" },
 ]
 
 const shortcuts = [{ id: "inventar", label: "Inventar", icon: "📦" }]
