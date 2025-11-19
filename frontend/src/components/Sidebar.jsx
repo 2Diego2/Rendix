@@ -4,6 +4,7 @@ const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: "📊" },
   { id: "ventas", label: "Ventas", icon: "📈" },
   { id: "actividades", label: "Actividades", icon: "👥" },
+  { id: "asistencias", label: "Asistencias", icon: "🗓️" },
   { id: "liquidaciones", label: "Liquidaciones", icon: "📄" },
   { id: "gastos", label: "Gastos", icon: "💰" },
   { id: "reportes", label: "Reportes", icon: "📊" },

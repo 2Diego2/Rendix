@@ -8,10 +8,11 @@ import { DashboardContent } from "./components/Dash"
 import { Actividades } from "./components/Actividades"
 import  Ventas  from "./components/Ventas"
 import { Gastos } from "./components/Gastos"
-import { Liquidaciones } from "./components/Liquidaciones"
+import Liquidaciones from "./components/Liquidaciones"
 import { Reportes } from "./components/Reportes"
 import Login from './components/Login';
 import Vendedoras from "./components/Vendedoras"
+import Asistencias from "./components/Asistencias"
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState("dashboard")
@@ -57,6 +58,8 @@ export default function Home() {
         return <DashboardContent />
       case "actividades":
         return <Actividades />
+      case "asistencias":
+        return <Asistencias />
       case "ventas":
         return <Ventas />
       case "gastos":

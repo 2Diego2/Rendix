@@ -292,15 +292,16 @@ export function DashboardContent() {
                     <tr key={index} style={{ borderBottom: "1Gpx solid #f9f9f9" }}>
                       <td style={{ padding: "8px" }}>{gasto.concepto}</td>
                       <td style={{ padding: "8px" }}>
-                        <span style={{ 
-                          padding: "2px 6px", 
-                          borderRadius: "4px", 
-                          fontSize: "12px", 
-                          backgroundColor: COLORS_PIE[gastosPieData.findIndex(p => p.name === gasto.categoria) % COLORS_PIE.length] || "#ccc",
-                          color: "white"
-                        }}>
-                          {gasto.categoria}
-                        </span>
+                     <span style={{ 
+                      padding: "2px 6px", 
+                      borderRadius: "4px", 
+                      fontSize: "12px", 
+                      // Si es "Fijo" (sueldos), forzamos el color Naranja, si no busca en el array, si no gris.
+                      backgroundColor: gasto.categoria === 'Fijo' ? '#FF8042' : (COLORS_PIE[gastosPieData.findIndex(p => p.name === gasto.categoria) % COLORS_PIE.length] || "#ccc"),
+                      color: "white"
+                    }}>
+                      {gasto.categoria}
+                    </span>
                       </td>
                       <td style={{ padding: "8px", fontWeight: "600" }}>
                         {formatCurrency(gasto.monto)}

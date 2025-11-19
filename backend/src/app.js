@@ -32,6 +32,10 @@ app.use("/ventas", ventasRouter);
 app.use("/gastos", gastosRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/vendedoras", vendedorasRouter);
+const asistenciasRouter = require("./routes/asistencias");
+app.use("/asistencias", asistenciasRouter);
+const liquidacionesRouter = require("./routes/liquidaciones");
+app.use("/liquidaciones", liquidacionesRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
