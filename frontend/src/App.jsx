@@ -10,10 +10,22 @@ import  Ventas  from "./components/Ventas"
 import { Gastos } from "./components/Gastos"
 import { Liquidaciones } from "./components/Liquidaciones"
 import { Reportes } from "./components/Reportes"
+import Login from './components/Login';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null)
+
+  useEffect(() => {
+    // Verificar si hay token en localStorage para mantener sesión
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Aquí podríamos decodificar el token para obtener datos del usuario
+      // por simplicidad, dejamos que el backend valide en cada request.
+      setUsuarioLogueado(true);
+    }
+  }, []);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
@@ -55,6 +67,15 @@ export default function Home() {
       default:
         return <DashboardContent />
     }
+  }
+
+  // Si no hay token, mostramos el componente Login
+  if (!usuarioLogueado) {
+    return (
+      <div className="app-login-wrapper">
+        <Login onLoginExitoso={() => setUsuarioLogueado(true)} />
+      </div>
+    )
   }
 
   return (

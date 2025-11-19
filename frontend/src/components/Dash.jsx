@@ -13,6 +13,7 @@ import {
   ResponsiveContainer, // Importante para que los gráficos se adapten
 } from "recharts";
 import { useFiltro } from './Filtro/FiltroContext'; // Asumo que está en esa ruta
+import api from '../utils/api';
 
 // --- Colores para los gráficos ---
 const COLORS_PIE = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]; // Azul, Verde, Amarillo, Naranja
@@ -63,7 +64,8 @@ export function DashboardContent() {
         // La API debería devolver los datos listos para los gráficos.
         //
         // EJEMPLO:
-        // const res = await fetch(`/api/dashboard?dias=${rangoDias}`);
+        // En lugar de usar fetch, usamos el cliente `api` con interceptores:
+        // const res = await api.get(`/api/dashboard?dias=${rangoDias}`);
         // const data = await res.json();
         // setVentas(data.kpis.ventas);
         // setGastos(data.kpis.gastos);
@@ -72,13 +74,11 @@ export function DashboardContent() {
         //
         // ===================================================================
 
-        const [resVentas, resGastos] = await Promise.all([
-          fetch(endpointVentas),
-          fetch(endpointGastos)
+        // Usamos el cliente Axios `api` (con interceptores) para llamadas al backend
+        const [{ data: dataVentas }, { data: dataGastos }] = await Promise.all([
+          api.get(endpointVentas),
+          api.get(endpointGastos),
         ]);
-
-        const dataVentas = await resVentas.json();
-        const dataGastos = await resGastos.json();
 
         // --- 1. Procesar KPIs ---
         const totalVentas = dataVentas.totalHoy || 0;

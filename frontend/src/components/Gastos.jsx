@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import api from '../utils/api';
 
 export function Gastos() {
   const [gastos, setGastos] = useState([])
@@ -8,9 +9,8 @@ export function Gastos() {
 
   useEffect(() => {
     // Cargar gastos desde el backend
-    fetch("http://localhost:3001/gastos/hoy")
-      .then((res) => res.json())
-      .then((data) => setGastos(data.gastosHoy))
+    api.get('/gastos/hoy')
+      .then((res) => setGastos(res.data.gastosHoy || []))
       .catch(() => console.log("No se pudieron cargar los gastos."))
   }, [])
 
@@ -52,17 +52,9 @@ export function Gastos() {
       })
     }
 
-    // Enviar al backend y actualizar el estado localmente
-    fetch("http://localhost:3001/gastos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuevosGastos),
-    })
-      .then((res) => res.json())
-      .then((data) => { // ✅ Recibe la respuesta del backend
-        // Actualiza el estado con los datos del servidor
-        setGastos(data.gastosHoy); 
-      })
+    // Enviar al backend y actualizar el estado localmente usando Axios
+    api.post('/gastos', nuevosGastos)
+      .then((res) => setGastos(res.data.gastosHoy || []))
       .catch((err) => console.error("Error al guardar gastos:", err))
 
     // Limpiar inputs
@@ -154,8 +146,7 @@ export function Gastos() {
           <button
             onClick={() => {
               if (confirm("¿Seguro que querés reiniciar los gastos del día?")) {
-                fetch("http://localhost:3001/gastos/reiniciar", { method: "DELETE" })
-                  .then((res) => res.json())
+                api.delete('/gastos/reiniciar')
                   .then(() => setGastos([]));
               }
             }}
