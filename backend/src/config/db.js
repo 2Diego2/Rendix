@@ -1,18 +1,16 @@
-// backend/src/config/db.js
-const { Pool } = require('pg');
+// Compatibilidad: exportar Prisma client en lugar de `pg`.
+// Algunos módulos pueden requerir `../config/db` — ahora retornan la instancia de Prisma.
+const prisma = require('../prismaClient');
 
-// Configuración de la conexión
-const pool = new Pool({
-  user: 'postgres',   // ej: postgres
-  host: 'localhost',
-  database: 'Rendix',            // el nombre exacto de tu base
-  password: 'kraken',       // la contraseña de tu usuario de postgres
-  port: 5432,                    // puerto por defecto de PostgreSQL
-});
+async function testConexion() {
+  try {
+    await prisma.$connect();
+    console.log('✅ Conectado a PostgreSQL (Prisma)');
+  } catch (err) {
+    console.error('❌ Error al conectar a PostgreSQL (Prisma)', err);
+  }
+}
 
-// Probar conexión
-pool.connect()
-  .then(() => console.log('✅ Conectado a PostgreSQL'))
-  .catch(err => console.error('❌ Error al conectar a PostgreSQL', err));
+testConexion();
 
-module.exports = pool;
+module.exports = prisma;
