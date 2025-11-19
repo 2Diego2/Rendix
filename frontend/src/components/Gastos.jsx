@@ -6,6 +6,11 @@ export function Gastos() {
   const [sueldos, setSueldos] = useState("")
   const [compras, setCompras] = useState("")
   const [adicionales, setAdicionales] = useState("")
+  // Nuevo estado para formulario simple
+  const [nuevoConcepto, setNuevoConcepto] = useState('')
+  const [nuevoDescripcion, setNuevoDescripcion] = useState('')
+  const [nuevoMonto, setNuevoMonto] = useState('')
+  const [nuevaCategoria, setNuevaCategoria] = useState('Adicional')
 
   useEffect(() => {
     // Cargar gastos desde el backend
@@ -61,6 +66,34 @@ export function Gastos() {
     setSueldos("")
     setCompras("")
     setAdicionales("")
+  }
+
+  // Form handler simple para crear un solo gasto
+  const handleCrearGasto = (e) => {
+    e.preventDefault()
+    if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido')
+    const gasto = {
+      concepto: nuevoConcepto || 'Sin concepto',
+      descripcion: nuevoDescripcion || '',
+      monto: Number(nuevoMonto),
+      fecha: new Date().toISOString().split('T')[0],
+      categoria: nuevaCategoria || 'Adicional',
+    }
+
+    api.post('/gastos', [gasto])
+      .then((res) => {
+        const nuevos = res.data.gastosHoy || []
+        setGastos(nuevos)
+        // limpiar formulario simple
+        setNuevoConcepto('')
+        setNuevoDescripcion('')
+        setNuevoMonto('')
+        setNuevaCategoria('Adicional')
+      })
+      .catch((err) => {
+        console.error('Error al crear gasto simple:', err)
+        alert('Error al crear gasto')
+      })
   }
 
   return (
@@ -162,6 +195,21 @@ export function Gastos() {
           >
             Reiniciar gastos del día
           </button>
+        </div>
+
+        {/* Formulario simple para añadir un gasto rápido */}
+        <div style={{ padding: "10px 0" }}>
+          <form onSubmit={handleCrearGasto} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
+            <input type="text" placeholder="Concepto" value={nuevoConcepto} onChange={(e) => setNuevoConcepto(e.target.value)} style={{ padding: '6px' }} />
+            <input type="text" placeholder="Descripción" value={nuevoDescripcion} onChange={(e) => setNuevoDescripcion(e.target.value)} style={{ padding: '6px' }} />
+            <input type="number" placeholder="Monto" value={nuevoMonto} onChange={(e) => setNuevoMonto(e.target.value)} style={{ padding: '6px', width: '110px' }} />
+            <select value={nuevaCategoria} onChange={(e) => setNuevaCategoria(e.target.value)} style={{ padding: '6px' }}>
+              <option>Adicional</option>
+              <option>Fijo</option>
+              <option>Variable</option>
+            </select>
+            <button type="submit" style={{ padding: '6px 10px' }}>Agregar gasto</button>
+          </form>
         </div>
 
         <div style={{ padding: "20px 0" }}>
