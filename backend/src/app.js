@@ -6,6 +6,7 @@ const gastosRouter = require("./routes/gastos");
 const usuariosRouter = require("./routes/usuarios");
 const authRouter = require("./routes/auth");
 const authMiddleware = require("./middlewares/authMiddleware");
+const vendedorasRouter = require("./routes/vendedoras");
 
 const prisma = require('../src/prismaClient');
 
@@ -30,6 +31,7 @@ app.use(authMiddleware);
 app.use("/ventas", ventasRouter);
 app.use("/gastos", gastosRouter);
 app.use("/usuarios", usuariosRouter);
+app.use("/vendedoras", vendedorasRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

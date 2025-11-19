@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import api from "../utils/api";
 // 1. Importamos el hook del FiltroContext
 import { useFiltro } from './Filtro/FiltroContext'; // (Asegúrate que la ruta sea correcta)
 
@@ -14,6 +14,8 @@ const Ventas = () => {
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([{ nombre: "", cantidad: 1, precio: "" }]);
+  const [vendedoras, setVendedoras] = useState([]);
+  const [vendedoraSeleccionada, setVendedoraSeleccionada] = useState(null);
   const [loading, setLoading] = useState(true); // Estado de carga para el fetch inicial
 
   // 4. Creamos una función para obtener la etiqueta del período
@@ -29,12 +31,9 @@ const Ventas = () => {
     setLoading(true);
     try {
       // 6. Decidimos qué endpoint usar basado en 'rangoDias'
-      const endpoint = rangoDias === 0
-        ? "http://localhost:3001/ventas/hoy"
-        : `http://localhost:3001/ventas/rango?dias=${rangoDias}`;
+      const endpoint = rangoDias === 0 ? "/ventas/hoy" : `/ventas/rango?dias=${rangoDias}`;
 
-      const res = await axios.get(endpoint);
-      
+      const res = await api.get(endpoint);
       setVentas(res.data.ventasHoy || []);
       setTotalPeriodo(res.data.totalHoy || 0);
       setCantidadPeriodo(res.data.cantidadHoy || 0);
@@ -52,6 +51,20 @@ const Ventas = () => {
   useEffect(() => {
     obtenerVentas();
   }, [obtenerVentas]); // Se ejecuta cuando la función (y 'rangoDias') cambia
+
+  // Cargar vendedoras al montar (si existe el endpoint /vendedoras)
+  useEffect(() => {
+    const fetchVendedoras = async () => {
+      try {
+        const res = await api.get('/vendedoras');
+        setVendedoras(res.data || []);
+      } catch (e) {
+        // No hacemos nada si el endpoint no existe aún
+        console.warn('No se pudieron cargar vendedoras:', e?.response?.status || e.message);
+      }
+    };
+    fetchVendedoras();
+  }, []);
 
   // --- Lógica del formulario (sin cambios) ---
   const handleProductoChange = (index, campo, valor) => {
@@ -83,9 +96,12 @@ const Ventas = () => {
 
     try {
       setLoading(true); // Usamos el 'loading' general
-      await axios.post("http://localhost:3001/ventas", {
+      const payload = {
         productos: productosValidos,
-      });
+      };
+      if (vendedoraSeleccionada) payload.vendedora_id = vendedoraSeleccionada;
+
+      await api.post('/ventas', payload);
       
       // 8. IMPORTANTE: Volvemos a llamar a 'obtenerVentas'
       // Esto recarga la lista con el filtro actual ('rangoDias')
@@ -187,6 +203,20 @@ const Ventas = () => {
               <button className="btn btn-outline" onClick={agregarProducto}>
                 + Agregar producto
               </button>
+              {/* Selector de vendedora (intenta obtener lista desde backend, maneja ausencia) */}
+              <div style={{ marginTop: '10px' }}>
+                <label>Vendedora:</label>
+                <select
+                  value={vendedoraSeleccionada || ''}
+                  onChange={(e) => setVendedoraSeleccionada(e.target.value || null)}
+                  style={{ marginLeft: '8px' }}
+                >
+                  <option value="">-- No asignada --</option>
+                  {vendedoras.map((v) => (
+                    <option key={v.id} value={v.id}>{v.nombre}</option>
+                  ))}
+                </select>
+              </div>
               <div style={{ marginTop: "15px" }}>
                 <button
                   className="btn btn-primary"
@@ -217,28 +247,24 @@ const Ventas = () => {
               ventas
                 .slice()
                 .reverse()
-                // Usamos 'index' como 'key' temporal porque tu backend no genera IDs
-                .map((venta, index) => ( 
+                .map((venta) => ( 
                   <div
-                    key={`${venta.hora}-${index}`} // Key más robusta
+                    key={venta.id || `${venta.fecha}-${venta.ticket_num}`}
                     style={{
                       borderBottom: "1px solid var(--border)",
                       padding: "10px 0",
                     }}
                   >
-                    {/* Mostramos 'fecha' y 'hora' ya que el backend las provee */}
                     <p style={{ fontWeight: "500" }}>
-                      {/* (Tu backend aún no guarda la fecha en el objeto, 
-                         lo solucionaremos en el paso 3, por ahora usamos la hora) */}
-                      Venta de las {venta.hora}
+                      Venta {venta.ticket_num || ''} - {venta.fecha ? new Date(venta.fecha).toLocaleDateString() : ''} {venta.hora ? new Date(venta.hora).toLocaleTimeString() : ''}
                     </p>
-                    {venta.productos.map((p, i) => (
+                    {(venta.items || []).map((p, i) => (
                       <p key={i} style={{ fontSize: "14px", color: "var(--muted-foreground)" }}>
-                        {p.nombre} x{p.cantidad} - ${p.precio}
+                        {p.descripcion} x{p.cantidad} - ${Number(p.precio_unitario).toFixed(2)}
                       </p>
                     ))}
                     <p style={{ marginTop: "4px", fontWeight: "600" }}>
-                      Total: ${venta.totalVenta.toFixed(2)}
+                      Total: ${Number(venta.total || 0).toFixed(2)}
                     </p>
                   </div>
                 ))
