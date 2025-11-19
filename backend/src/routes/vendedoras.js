@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../prismaClient');
+const vendedorasController = require('../controllers/vendedorasController');
 
-// GET /vendedoras - lista simple de vendedoras (id, nombre)
-router.get('/', async (req, res) => {
-  try {
-    const vendedoras = await prisma.vendedora.findMany({ select: { id: true, nombre: true, codigo: true } });
-    res.json(vendedoras);
-  } catch (e) {
-    console.error('Error al obtener vendedoras:', e);
-    res.status(500).json({ error: 'Error interno al obtener vendedoras' });
-  }
-});
+// Rutas CRUD para vendedoras
+router.get('/', vendedorasController.getAll);
+router.get('/:id', vendedorasController.getById);
+router.post('/', vendedorasController.create);
+router.put('/:id', vendedorasController.update);
+router.delete('/:id', vendedorasController.delete);
 
 module.exports = router;

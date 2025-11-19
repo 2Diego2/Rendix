@@ -1,11 +1,10 @@
+// Middleware de autenticación JWT
+// Extrae el token del header Authorization (Bearer TOKEN), lo verifica
+// y añade `req.user` con la información del token para uso en controladores.
 const jwt = require('jsonwebtoken');
 
-/**
- * Middleware que protege rutas mediante JWT.
- * - Extrae el header Authorization (Bearer TOKEN)
- * - Verifica el token y pone `req.user` con el payload
- * - Retorna 401 si no hay token, 403 si el token es inválido
- */
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
+
 module.exports = (req, res, next) => {
   const authHeader = req.headers['authorization'] || req.headers['Authorization'];
   if (!authHeader) return res.status(401).json({ error: 'Token no proporcionado' });
@@ -16,14 +15,14 @@ module.exports = (req, res, next) => {
   }
 
   const token = partes[1];
-  const secret = process.env.JWT_SECRET || 'dev_secret_key';
 
   try {
-    const payload = jwt.verify(token, secret);
-    // Agregar la información del usuario al request para uso posterior
-    req.user = payload;
+    const payload = jwt.verify(token, JWT_SECRET);
+    // Adjuntar sólo campos seguros al request
+    req.user = { id: payload.id, nombre: payload.nombre, email: payload.email, rol: payload.rol };
     return next();
   } catch (err) {
+    console.error('authMiddleware: token inválido', err.message);
     return res.status(403).json({ error: 'Token inválido' });
   }
 };
