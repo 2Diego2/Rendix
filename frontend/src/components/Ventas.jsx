@@ -57,7 +57,8 @@ const Ventas = () => {
     const fetchVendedoras = async () => {
       try {
         const res = await api.get('/vendedoras');
-        setVendedoras(res.data || []);
+        // El backend responde { vendedoras: [...] }
+        setVendedoras(res.data?.vendedoras || []);
       } catch (e) {
         // No hacemos nada si el endpoint no existe aún
         console.warn('No se pudieron cargar vendedoras:', e?.response?.status || e.message);
@@ -208,7 +209,7 @@ const Ventas = () => {
                 <label>Vendedora:</label>
                 <select
                   value={vendedoraSeleccionada || ''}
-                  onChange={(e) => setVendedoraSeleccionada(e.target.value || null)}
+                  onChange={(e) => setVendedoraSeleccionada(e.target.value ? Number(e.target.value) : null)}
                   style={{ marginLeft: '8px' }}
                 >
                   <option value="">-- No asignada --</option>
@@ -257,6 +258,11 @@ const Ventas = () => {
                   >
                     <p style={{ fontWeight: "500" }}>
                       Venta {venta.ticket_num || ''} - {venta.fecha ? new Date(venta.fecha).toLocaleDateString() : ''} {venta.hora ? new Date(venta.hora).toLocaleTimeString() : ''}
+                      {venta.vendedora ? (
+                        <span style={{ fontWeight: 400, marginLeft: 8 }}> - Vendedora: {venta.vendedora.nombre}</span>
+                      ) : (
+                        <span style={{ fontWeight: 400, marginLeft: 8 }}> - Vendedora: --</span>
+                      )}
                     </p>
                     {(venta.items || []).map((p, i) => (
                       <p key={i} style={{ fontSize: "14px", color: "var(--muted-foreground)" }}>
