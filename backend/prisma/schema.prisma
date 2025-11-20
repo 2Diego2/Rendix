@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -11,174 +8,150 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================
-// MODELOS PRINCIPALES
-// ============================
-
 model Usuario {
-  id            Int       @id @default(autoincrement())
-  nombre        String    @db.VarChar(100)
-  email         String    @unique @db.VarChar(150)
-  password_hash String    @db.Text
-  rol           String    @db.VarChar(50)
-  creado_en     DateTime  @default(now()) @map("creado_en")
-  
-  // Relaciones
-  gastos        Gasto[]
-  liquidaciones Liquidacion[]
+  id             Int           @id @default(autoincrement())
+  nombre         String        @db.VarChar(100)
+  email          String        @unique @db.VarChar(150)
+  password_hash  String
+  rol            String        @db.VarChar(50)
+  creado_en      DateTime?     @default(now()) @map("creado_en") @db.Timestamp(6)
+  auditoria      Auditoria[]
+  gastos         Gasto[]
   import_batches ImportBatch[]
-  auditoria     Auditoria[]
-  
+  liquidaciones  Liquidacion[]
+
   @@map("usuarios")
 }
 
 model Vendedora {
-  id                Int       @id @default(autoincrement())
-  nombre            String    @db.VarChar(100)
-  codigo            String?   @db.VarChar(50)
-  sueldo_base       Decimal   @db.Decimal(12, 2)
-  porcentaje_comision Decimal @db.Decimal(5, 2)
-  creado_en         DateTime  @default(now()) @map("creado_en")
-  
-  // Relaciones
-  ventas            Venta[]
-  asistencias       Asistencia[]
-  liquidaciones     Liquidacion[]
-  
+  id                  Int           @id @default(autoincrement())
+  nombre              String        @db.VarChar(100)
+  codigo              String?       @db.VarChar(50)
+  sueldo_base         Decimal       @db.Decimal(12, 2)
+  porcentaje_comision Decimal       @db.Decimal(5, 2)
+  creado_en           DateTime?     @default(now()) @map("creado_en") @db.Timestamp(6)
+  asistencias         Asistencia[]
+  liquidaciones       Liquidacion[]
+  ventas              Venta[]
+
   @@map("vendedoras")
 }
 
 model ImportBatch {
-  id              Int      @id @default(autoincrement())
-  usuario_id      Int
-  fecha           DateTime @default(now())
-  archivo_nombre  String   @db.VarChar(255)
-  filas_totales   Int
+  id               Int       @id @default(autoincrement())
+  usuario_id       Int
+  fecha            DateTime? @default(now()) @db.Timestamp(6)
+  archivo_nombre   String    @db.VarChar(255)
+  filas_totales    Int
   filas_importadas Int
-  filas_fallidas  Int
-  estado          String   @db.VarChar(20)
-  
-  // Relaciones
-  usuario         Usuario  @relation(fields: [usuario_id], references: [id])
-  ventas          Venta[]
-  
+  filas_fallidas   Int
+  estado           String    @db.VarChar(20)
+  usuario          Usuario   @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ventas           Venta[]
+
   @@map("import_batches")
 }
 
 model Venta {
-  id              Int       @id @default(autoincrement())
-  fecha           DateTime  @db.Date
-  hora            DateTime? @db.Time
+  id              Int          @id @default(autoincrement())
+  fecha           DateTime     @db.Date
+  hora            DateTime?    @db.Time(6)
   vendedora_id    Int
-  total           Decimal   @db.Decimal(12, 2)
-  estado          String    @db.VarChar(20) // 'finalizada' | 'devolucion'
-  ticket_num      String?   @unique @db.VarChar(50)
-  saldo_pendiente Decimal   @default(0) @db.Decimal(12, 2)
+  total           Decimal      @db.Decimal(12, 2)
+  estado          String       @db.VarChar(20)
+  ticket_num      String?      @unique @db.VarChar(50)
+  saldo_pendiente Decimal?     @default(0) @db.Decimal(12, 2)
   batch_id        Int?
-  
-  // Relaciones
-  vendedora       Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: Cascade)
-  items           VentaItem[]
   pagos           PagoVenta[]
-  import_batch    ImportBatch? @relation(fields: [batch_id], references: [id])
-  
-  @@index([vendedora_id])
+  items           VentaItem[]
+  import_batch    ImportBatch? @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vendedora       Vendedora    @relation(fields: [vendedora_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([vendedora_id], map: "idx_ventas_vendedora")
   @@map("ventas")
 }
 
 model VentaItem {
-  id             Int     @id @default(autoincrement())
-  venta_id       Int
-  descripcion    String  @db.Text
-  cantidad       Int
-  precio_unitario Decimal @db.Decimal(12, 2)
-  descuento      Decimal @default(0) @db.Decimal(12, 2)
-  
-  // Relaciones
-  venta          Venta   @relation(fields: [venta_id], references: [id], onDelete: Cascade)
-  
-  @@index([venta_id])
+  id              Int      @id @default(autoincrement())
+  venta_id        Int
+  descripcion     String
+  cantidad        Int
+  precio_unitario Decimal  @db.Decimal(12, 2)
+  descuento       Decimal? @default(0) @db.Decimal(12, 2)
+  venta           Venta    @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([venta_id], map: "idx_venta_items_venta")
   @@map("venta_items")
 }
 
 model PagoVenta {
   id          Int     @id @default(autoincrement())
   venta_id    Int
-  metodo_pago String  @db.VarChar(20) // 'efectivo' | 'tarjeta' | 'transferencia'
+  metodo_pago String  @db.VarChar(20)
   monto       Decimal @db.Decimal(12, 2)
   referencia  String? @db.VarChar(100)
-  
-  // Relaciones
-  venta       Venta   @relation(fields: [venta_id], references: [id], onDelete: Cascade)
-  
-  @@index([venta_id])
+  venta       Venta   @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([venta_id], map: "idx_pagos_venta_venta")
   @@map("pagos_venta")
 }
 
 model Gasto {
-  id             Int      @id @default(autoincrement())
-  fecha          DateTime @db.Date
-  monto          Decimal  @db.Decimal(12, 2)
-  categoria      String   @db.VarChar(100)
-  descripcion    String   @db.Text
-  comprobante_url String?  @db.Text
-  periodo        String   @db.VarChar(7) // YYYY-MM
-  creado_por     Int
-  
-  // Relaciones
-  usuario        Usuario  @relation(fields: [creado_por], references: [id])
-  
-  @@index([periodo])
+  id              Int      @id @default(autoincrement())
+  fecha           DateTime @db.Date
+  monto           Decimal  @db.Decimal(12, 2)
+  categoria       String   @db.VarChar(100)
+  descripcion     String
+  comprobante_url String?
+  periodo         String   @db.VarChar(7)
+  creado_por      Int
+  usuario         Usuario  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([periodo], map: "idx_gastos_periodo")
   @@map("gastos")
 }
 
 model Asistencia {
-  id          Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   vendedora_id Int
-  fecha       DateTime @db.Date
-  presente    Boolean
-  motivo      String?  @db.Text
-  
-  // Relaciones
-  vendedora   Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: Cascade)
-  
-  @@index([fecha])
+  fecha        DateTime  @db.Date
+  presente     Boolean
+  motivo       String?
+  vendedora    Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([fecha], map: "idx_asistencias_fecha")
   @@map("asistencias")
 }
 
 model Liquidacion {
-  id                  Int      @id @default(autoincrement())
-  vendedora_id        Int
-  periodo             String   @db.VarChar(7) // YYYY-MM
-  sueldo_base         Decimal  @db.Decimal(12, 2)
-  comisiones          Decimal  @db.Decimal(12, 2)
-  presentismo_descuento Decimal @default(0) @db.Decimal(12, 2)
-  bonos               Decimal  @default(0) @db.Decimal(12, 2)
-  total_pagar         Decimal  @db.Decimal(12, 2)
-  estado              String   @db.VarChar(20) // 'generada' | 'pagada'
-  generado_por        Int
-  creado_en           DateTime @default(now()) @map("creado_en")
-  
-  // Relaciones
-  vendedora           Vendedora @relation(fields: [vendedora_id], references: [id])
-  usuario             Usuario   @relation(fields: [generado_por], references: [id])
-  
-  @@index([periodo])
+  id                    Int       @id @default(autoincrement())
+  vendedora_id          Int
+  periodo               String    @db.VarChar(7)
+  sueldo_base           Decimal   @db.Decimal(12, 2)
+  comisiones            Decimal   @db.Decimal(12, 2)
+  presentismo_descuento Decimal?  @default(0) @db.Decimal(12, 2)
+  bonos                 Decimal?  @default(0) @db.Decimal(12, 2)
+  total_pagar           Decimal   @db.Decimal(12, 2)
+  estado                String    @db.VarChar(20)
+  generado_por          Int
+  creado_en             DateTime? @default(now()) @map("creado_en") @db.Timestamp(6)
+  usuario               Usuario   @relation(fields: [generado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vendedora             Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([periodo], map: "idx_liquidaciones_periodo")
   @@map("liquidaciones")
 }
 
 model Auditoria {
-  id            Int      @id @default(autoincrement())
-  entidad       String   @db.VarChar(100)
+  id            Int       @id @default(autoincrement())
+  entidad       String    @db.VarChar(100)
   entidad_id    Int
-  accion        String   @db.VarChar(10) // 'create' | 'update' | 'delete'
+  accion        String    @db.VarChar(10)
   usuario_id    Int?
-  timestamp     DateTime @default(now())
+  timestamp     DateTime? @default(now()) @db.Timestamp(6)
   datos_antes   Json?
   datos_despues Json?
-  
-  // Relaciones
-  usuario       Usuario? @relation(fields: [usuario_id], references: [id])
-  
+  usuario       Usuario?  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   @@map("auditoria")
 }
