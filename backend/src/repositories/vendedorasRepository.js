@@ -27,6 +27,16 @@ async function countVentasByVendedora(id) {
   return prisma.venta.count({ where: { vendedora_id: Number(id) } });
 }
 
+// utilidad: contar asistencias de una vendedora
+async function countAsistenciasByVendedora(id) {
+  return prisma.asistencia.count({ where: { vendedora_id: Number(id) } });
+}
+
+// utilidad: contar liquidaciones de una vendedora
+async function countLiquidacionesByVendedora(id) {
+  return prisma.liquidacion.count({ where: { vendedora_id: Number(id) } });
+}
+
 module.exports = {
   findAll,
   findById,
@@ -34,4 +44,6 @@ module.exports = {
   update,
   delete: del,
   countVentasByVendedora,
+  countAsistenciasByVendedora,
+  countLiquidacionesByVendedora,
 };

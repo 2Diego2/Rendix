@@ -76,13 +76,25 @@ async function updateVendedora(id, data) {
 }
 
 async function deleteVendedora(id) {
-  // Validar que no tenga ventas asociadas
-  const ventas = await vendedorasRepo.countVentasByVendedora(id);
-  if (ventas > 0) {
-    const err = new Error('No se puede eliminar la vendedora: tiene ventas asociadas');
+  // Obtener conteos de registros asociados (ventas, asistencias, liquidaciones)
+  const [ventas, asistencias, liquidaciones] = await Promise.all([
+    vendedorasRepo.countVentasByVendedora(id),
+    vendedorasRepo.countAsistenciasByVendedora(id),
+    vendedorasRepo.countLiquidacionesByVendedora(id),
+  ]);
+
+  // Si existe cualquier asociación, devolver un error detallado con los conteos
+  if (ventas > 0 || asistencias > 0 || liquidaciones > 0) {
+    const detalles = [];
+    detalles.push(`ventas: ${ventas}`);
+    detalles.push(`asistencias: ${asistencias}`);
+    detalles.push(`liquidaciones: ${liquidaciones}`);
+    const msg = `No se puede eliminar la vendedora: existen registros asociados (${detalles.join(', ')}). Limpie o reasigne estos registros antes de eliminar.`;
+    const err = new Error(msg);
     err.status = 400;
     throw err;
   }
+
   return vendedorasRepo.delete(id);
 }
 
