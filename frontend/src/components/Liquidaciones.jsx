@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
 import { validarLiquidacionFrontend } from '../utils/validators';
+import './Css/Liquidaciones.css';
 
 // Componente para generar y listar liquidaciones
 // Variables y funciones en español para facilitar mantenimiento
@@ -102,88 +103,154 @@ export default function Liquidaciones() {
       alert('Error al marcar como pagada');
     }
   };
-
-  return (
-    <div>
-      <h3>Liquidaciones</h3>
-
-      {/* Controles principales: periodo y parámetros de presentismo */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <label>Periodo:</label>
-        <input type="month" value={periodo} onChange={(e)=>setPeriodo(e.target.value)} />
-
-        <label>Umbral presentismo (% mínimo para bono):</label>
-        <input type="number" value={umbralPresentismo} onChange={(e)=>setUmbralPresentismo(e.target.value)} style={{width:100}} />
-
-        <label>Tasa bono (%):</label>
-        <input type="number" step="0.1" value={tasaBono} onChange={(e)=>setTasaBono(e.target.value)} style={{width:100}} />
-
-        <label>Modo presentismo:</label>
-        <select value={modoPresentismo} onChange={(e)=>setModoPresentismo(e.target.value)}>
-          <option value="calendario">Calendario (todos los días)</option>
-          <option value="habiles">Días hábiles (lun-vie)</option>
-        </select>
-
-        <button onClick={generarLiquidaciones} disabled={cargando}>{cargando ? 'Generando...' : 'Generar'}</button>
-        <button onClick={listarLiquidaciones}>Listar</button>
+return (
+    <div className="liquidaciones-container">
+      
+      {/* Header */}
+      <div className="page-header">
+        <h3 className="page-title">Gestión de Liquidaciones</h3>
       </div>
 
-      {/* Explicación breve sobre el umbral de presentismo para el usuario */}
-      <div style={{ marginTop: 8, fontSize: 13, color: '#444' }}>
-        <strong>Nota:</strong> El <em>umbral de presentismo</em> es el porcentaje mínimo de días
-        presentes que la vendedora debe alcanzar en el período para recibir el bono de presentismo.
-        Si el porcentaje de presentismo está por debajo del umbral, se aplica un descuento en lugar del bono.
+      {/* Panel de Control */}
+      <div className="control-panel">
+        <div className="control-group">
+          <label className="control-label">Periodo</label>
+          <input 
+            type="month" 
+            className="input-control"
+            value={periodo} 
+            onChange={(e)=>setPeriodo(e.target.value)} 
+          />
+        </div>
+
+        <div className="control-group">
+          <label className="control-label">Umbral Presentismo (%)</label>
+          <input 
+            type="number" 
+            className="input-control"
+            value={umbralPresentismo} 
+            onChange={(e)=>setUmbralPresentismo(e.target.value)} 
+            placeholder="Ej: 85"
+          />
+        </div>
+
+        <div className="control-group">
+          <label className="control-label">Tasa Bono (%)</label>
+          <input 
+            type="number" 
+            step="0.1" 
+            className="input-control"
+            value={tasaBono} 
+            onChange={(e)=>setTasaBono(e.target.value)} 
+            placeholder="Ej: 10"
+          />
+        </div>
+
+        <div className="control-group">
+          <label className="control-label">Modo Presentismo</label>
+          <select 
+            className="input-control select-control"
+            value={modoPresentismo} 
+            onChange={(e)=>setModoPresentismo(e.target.value)}
+          >
+            <option value="calendario">Calendario (todos los días)</option>
+            <option value="habiles">Días hábiles (lun-vie)</option>
+          </select>
+        </div>
+
+        <div className="btn-group">
+          <button 
+            className="btn btn-primary" 
+            onClick={generarLiquidaciones} 
+            disabled={cargando}
+          >
+            {cargando ? '⚙️ Generando...' : 'Generar'}
+          </button>
+          <button 
+            className="btn btn-outline" 
+            onClick={listarLiquidaciones}
+          >
+            Listar
+          </button>
+        </div>
       </div>
 
-      {/* Resultado detallado tal como lo retorna el backend */}
+      {/* Nota Informativa */}
+      <div className="info-note">
+        <strong>Nota:</strong> El <em>umbral de presentismo</em> es el porcentaje mínimo de días presentes para recibir el bono.
+        Si el porcentaje está por debajo del umbral, se aplicará un descuento equivalente. {}
+        <br/>
+        <em>La tasa bono es el porcentaje adicional que se suma al sueldo base si se cumple el umbral de presentismo.</em>  
+        <br/>
+        <strong>Es decir, si de 30 días decidimos que el umbral es {umbralPresentismo}, entonces se debe haber asistido al menos {Math.ceil((umbralPresentismo/100)*30)} días para recibir el bono completo.</strong>
+      </div>
+
+      {/* Debug Result (Opcional, puedes ocultarlo si prefieres) */}
       {resultado && (
-        <div style={{ marginTop: 12, border: '1px solid #ddd', padding: 8 }}>
-          <h4>Resultado (detalle del backend)</h4>
-          <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(resultado, null, 2)}</pre>
+        <div className="debug-area">
+          <div className="debug-title">Respuesta del servidor:</div>
+          <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{JSON.stringify(resultado, null, 2)}</pre>
         </div>
       )}
 
-      {/* Tabla de liquidaciones guardadas para el periodo */}
-      <div style={{ marginTop: 12 }}>
-        <h4>Liquidaciones ({listaLiquidaciones.length})</h4>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Vendedora</th>
-              <th>Periodo</th>
-              <th>Sueldo</th>
-              <th>Comisiones</th>
-              <th>Bonos</th>
-              <th>Desc. Presentismo</th>
-              <th>Gastos descontados</th>
-              <th>Total Pagar</th>
-              <th>Estado</th>
-              <th>Pagado Por</th>
-              <th>Pagado En</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {listaLiquidaciones.map(l => (
-              <tr key={l.id}>
-                <td>{l.id}</td>
-                <td>{l.vendedora?.nombre || l.vendedora_id}</td>
-                <td>{l.periodo}</td>
-                <td>{Number(l.sueldo_base || 0).toFixed(2)}</td>
-                <td>{Number(l.comisiones || 0).toFixed(2)}</td>
-                <td>{Number(l.bonos || 0).toFixed(2)}</td>
-                <td>{Number(l.presentismo_descuento || 0).toFixed(2)}</td>
-                <td>{Number(gastosMap[l.id] || 0).toFixed(2)}</td>
-                <td>{Number(l.total_pagar || 0).toFixed(2)}</td>
-                <td>{l.estado}</td>
-                <td>{l.pagado_por_usuario?.nombre || ''}</td>
-                <td>{l.pagado_en ? new Date(l.pagado_en).toLocaleString() : ''}</td>
-                <td>{l.estado !== 'pagada' && <button onClick={()=>marcarComoPagada(l.id)}>Marcar pagada</button>}</td>
+      {/* Tabla de Resultados */}
+      <div className="table-wrapper">
+        <h4 className="table-header-title">Liquidaciones del Periodo ({listaLiquidaciones.length})</h4>
+        
+        {listaLiquidaciones.length === 0 ? (
+          <div className="empty-state">No hay liquidaciones generadas para este periodo.</div>
+        ) : (
+          <table className="financial-table">
+            <thead>
+              <tr>
+                <th>Vendedor/a</th>
+                <th>Periodo</th>
+                <th className="text-right">Sueldo Base</th>
+                <th className="text-right">Comisiones</th>
+                <th className="text-right">Bonos</th>
+                <th className="text-right">Desc. Pres.</th>
+                <th className="text-right">Gastos Desc.</th>
+                <th className="text-right">Total a Pagar</th>
+                <th>Estado</th>
+                <th>Pagado Por</th>
+                <th>Fecha Pago</th>
+                <th>Acción</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {listaLiquidaciones.map(l => (
+                <tr key={l.id}>
+                
+                  <td style={{fontWeight: 500}}>{l.vendedora?.nombre || l.vendedora_id}</td>
+                  <td>{l.periodo}</td>
+                  <td className="text-right">{Number(l.sueldo_base || 0).toFixed(2)}</td>
+                  <td className="text-right">{Number(l.comisiones || 0).toFixed(2)}</td>
+                  <td className="text-right" style={{color: '#166534'}}>{Number(l.bonos || 0).toFixed(2)}</td>
+                  <td className="text-right" style={{color: '#991b1b'}}>{Number(l.presentismo_descuento || 0).toFixed(2)}</td>
+                  <td className="text-right">{Number(gastosMap[l.id] || 0).toFixed(2)}</td>
+                  <td className="text-right col-total">{Number(l.total_pagar || 0).toFixed(2)}</td>
+                  <td>
+                    <span className={`status-badge ${l.estado === 'pagada' ? 'status-pagada' : 'status-generada'}`}>
+                      {l.estado}
+                    </span>
+                  </td>
+                  <td>{l.pagado_por_usuario?.nombre || '-'}</td>
+                  <td>{l.pagado_en ? new Date(l.pagado_en).toLocaleDateString() : '-'}</td>
+                  <td>
+                    {l.estado !== 'pagada' && (
+                      <button 
+                        className="btn btn-action-pay" 
+                        onClick={()=>marcarComoPagada(l.id)}
+                      >
+                        $ Pagar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
