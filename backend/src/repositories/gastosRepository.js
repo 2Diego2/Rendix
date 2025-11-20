@@ -5,9 +5,27 @@ const prisma = require('../prismaClient');
  * Devuelve los gastos de una fecha específica (Date o string ISO 'YYYY-MM-DD')
  */
 async function findByDate(fecha) {
-  const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
-  // Normalizar al inicio del día en UTC y usar comparación entre fechas (evitar shifts por zona horaria)
-  const inicioUTC = new Date(Date.UTC(fechaObj.getFullYear(), fechaObj.getMonth(), fechaObj.getDate()));
+  let inicioUTC;
+  if (typeof fecha === 'string') {
+    // Esperamos formato 'YYYY-MM-DD'
+    const parts = fecha.split('-');
+    if (parts.length === 3) {
+      const [y, m, d] = parts.map(Number);
+      inicioUTC = new Date(Date.UTC(y, m - 1, d));
+    } else {
+      // Fallback: construir Date y tomar componentes UTC
+      const f = new Date(fecha);
+      inicioUTC = new Date(Date.UTC(f.getUTCFullYear(), f.getUTCMonth(), f.getUTCDate()));
+    }
+  } else if (fecha instanceof Date) {
+    // Tomar la fecha en UTC para evitar shifts por zona horaria
+    inicioUTC = new Date(Date.UTC(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate()));
+  } else {
+    // fallback a hoy UTC
+    const now = new Date();
+    inicioUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  }
+
   const siguiente = new Date(inicioUTC.getTime() + 24 * 60 * 60 * 1000);
 
   return prisma.gasto.findMany({
@@ -21,11 +39,28 @@ async function findByDate(fecha) {
  * fechaInicio/fechaFin pueden ser Date o strings.
  */
 async function findByDateRange(fechaInicio, fechaFin) {
-  const inicio = typeof fechaInicio === 'string' ? new Date(fechaInicio) : fechaInicio;
-  const fin = typeof fechaFin === 'string' ? new Date(fechaFin) : fechaFin;
-  // Normalizar inicio y fin a medianoche UTC para evitar problemas de zona horaria
-  const inicioUTC = new Date(Date.UTC(inicio.getFullYear(), inicio.getMonth(), inicio.getDate()));
-  const finUTC = new Date(Date.UTC(fin.getFullYear(), fin.getMonth(), fin.getDate()));
+  let inicioUTC;
+  let finUTC;
+
+  if (typeof fechaInicio === 'string') {
+    const p = fechaInicio.split('-').map(Number);
+    if (p.length === 3) inicioUTC = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+    else { const t = new Date(fechaInicio); inicioUTC = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate())); }
+  } else if (fechaInicio instanceof Date) {
+    inicioUTC = new Date(Date.UTC(fechaInicio.getUTCFullYear(), fechaInicio.getUTCMonth(), fechaInicio.getUTCDate()));
+  } else {
+    const now = new Date(); inicioUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  }
+
+  if (typeof fechaFin === 'string') {
+    const p = fechaFin.split('-').map(Number);
+    if (p.length === 3) finUTC = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+    else { const t = new Date(fechaFin); finUTC = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate())); }
+  } else if (fechaFin instanceof Date) {
+    finUTC = new Date(Date.UTC(fechaFin.getUTCFullYear(), fechaFin.getUTCMonth(), fechaFin.getUTCDate()));
+  } else {
+    const now = new Date(); finUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  }
 
   return prisma.gasto.findMany({
     where: { fecha: { gte: inicioUTC, lt: finUTC } },
@@ -55,12 +90,19 @@ async function createMany(gastosData) {
  * Elimina todos los gastos del día indicado (fecha Date o string 'YYYY-MM-DD')
  */
 async function deleteByDate(fecha) {
-  const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
-  fechaObj.setHours(0,0,0,0);
-  const siguiente = new Date(fechaObj);
-  siguiente.setDate(fechaObj.getDate() + 1);
+  let inicioUTC;
+  if (typeof fecha === 'string') {
+    const parts = fecha.split('-').map(Number);
+    if (parts.length === 3) inicioUTC = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    else { const t = new Date(fecha); inicioUTC = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate())); }
+  } else if (fecha instanceof Date) {
+    inicioUTC = new Date(Date.UTC(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate()));
+  } else {
+    const now = new Date(); inicioUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  }
 
-  return prisma.gasto.deleteMany({ where: { fecha: { gte: fechaObj, lt: siguiente } } });
+  const siguiente = new Date(inicioUTC.getTime() + 24 * 60 * 60 * 1000);
+  return prisma.gasto.deleteMany({ where: { fecha: { gte: inicioUTC, lt: siguiente } } });
 }
 
 module.exports = {

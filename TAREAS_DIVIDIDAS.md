@@ -1,5 +1,6 @@
 
 
+--diego
 ### 5.2 SISTEMA DE IMPORTACIÓN MASIVA
 
 #### TAREA-5.2.1: Crear Servicio de Importación
@@ -37,6 +38,8 @@
 - Mostrar resultados (filas importadas, errores)
 - Mostrar historial de importaciones realizadas
 
+--diego
+
 ### 5.4 VALIDACIONES Y MANEJO DE ERRORES
 
 #### TAREA-5.4.1: Implementar Validación de Esquemas
@@ -73,6 +76,7 @@
 **Prioridad:** Media-Baja  
 **Objetivo:** Mejorar la experiencia de usuario, performance y agregar funcionalidades de exportación.
 
+--fran 
 ### 6.1 EXPORTACIÓN DE REPORTES
 
 #### TAREA-6.1.1: Implementar Exportación a PDF
@@ -101,6 +105,7 @@
 - Implementar descarga de archivos desde el frontend
 - Mostrar indicador de carga durante la generación
 
+--diego
 ### 6.2 PAGINACIÓN Y FILTROS AVANZADOS
 
 #### TAREA-6.2.1: Implementar Paginación en Backend
@@ -121,6 +126,7 @@
 - Agregar filtros avanzados con UI intuitiva
 - Mostrar información de paginación (página X de Y, total registros)
 
+--fran 
 ### 6.3 MEJORAS DE DASHBOARD
 
 #### TAREA-6.3.1: Agregar Más KPIs al Dashboard
@@ -137,6 +143,7 @@
 - Implementar gráfico de evolución de gastos por categoría
 - Usar librería de gráficos (Recharts, Chart.js)
 
+--fran 
 ### 6.4 MEJORAS DE UX
 
 #### TAREA-6.4.1: Implementar Notificaciones
