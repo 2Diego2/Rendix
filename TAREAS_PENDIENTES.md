@@ -412,44 +412,9 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 **Prioridad:** Media  
 **Objetivo:** Agregar funcionalidades avanzadas como importación masiva, pagos de ventas, auditoría y validaciones.
 
-### 5.1 SISTEMA DE PAGOS DE VENTAS
 
-#### TAREA-5.1.1: Extender Repositorio de Ventas para Pagos
-- Agregar métodos en `repositories/ventasRepository.js` para manejar pagos
-- Implementar método `agregarPago(ventaId, pagoData)` para registrar un pago
-- Implementar método `obtenerPagosPorVenta(ventaId)` para obtener todos los pagos de una venta
-- Implementar método `calcularSaldoPendiente(ventaId)` que calcule la diferencia entre total y pagos realizados
-- Actualizar el campo saldo_pendiente en la venta cuando se agregue un pago
 
-#### TAREA-5.1.2: Crear Servicio de Pagos
-- Crear archivo `services/pagosService.js` o extender `services/ventasService.js`
-- Implementar método `registrarPago(ventaId, pagoData)` que:
-  - Valide que la venta exista
-  - Valide que el método de pago sea válido (efectivo, tarjeta, transferencia)
-  - Valide que el monto no exceda el saldo pendiente
-  - Registre el pago
-  - Actualice el saldo_pendiente de la venta
-- Implementar método `obtenerPagosPorVenta(ventaId)` que retorne todos los pagos con detalles
-
-#### TAREA-5.1.3: Crear Controlador de Pagos
-- Crear archivo `controllers/pagosController.js` o extender `controllers/ventasController.js`
-- Implementar endpoint POST /ventas/:id/pagos para registrar un pago
-- Implementar endpoint GET /ventas/:id/pagos para obtener pagos de una venta
-- Validar datos de entrada
-- Manejar errores (venta no encontrada, monto excedido, etc.)
-
-#### TAREA-5.1.4: Crear Rutas de Pagos
-- Agregar rutas de pagos en `routes/ventas.js` o crear `routes/pagos.js`
-- Aplicar middleware de autenticación
-- Registrar rutas en app.js
-
-#### TAREA-5.1.5: Implementar UI de Pagos en Frontend
-- Modificar componente Ventas.jsx para mostrar pagos de cada venta
-- Implementar formulario para agregar pago a una venta
-- Mostrar saldo pendiente de cada venta
-- Mostrar historial de pagos por venta
-- Validar que el monto no exceda el saldo pendiente
-
+--- se hace en un futuro  ---
 ### 5.2 SISTEMA DE IMPORTACIÓN MASIVA
 
 #### TAREA-5.2.1: Crear Servicio de Importación
@@ -487,6 +452,10 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 - Mostrar resultados (filas importadas, errores)
 - Mostrar historial de importaciones realizadas
 
+--- se hace en un futuro  ---
+
+
+--- se hace en un futuro  ---
 ### 5.3 SISTEMA DE AUDITORÍA
 
 #### TAREA-5.3.1: Crear Servicio de Auditoría
@@ -521,6 +490,7 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 - Mostrar cambios antes/después de forma legible
 - Permitir filtrar por entidad, usuario, fecha
 - Mostrar detalles de cada acción de auditoría
+--- se hace en un futuro  ---
 
 ### 5.4 VALIDACIONES Y MANEJO DE ERRORES
 
@@ -622,11 +592,14 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 - Implementar gráfico de evolución de gastos por categoría
 - Usar librería de gráficos (Recharts, Chart.js)
 
+
+--- se hace en un futuro  ---
 #### TAREA-6.3.3: Agregar Widgets Interactivos
 - Implementar selector de período en dashboard
 - Agregar filtros rápidos (hoy, semana, mes, año)
 - Implementar actualización automática de datos (refresh cada X minutos)
 - Agregar exportación rápida del dashboard a PDF
+--- se hace en un futuro  ---
 
 ### 6.4 MEJORAS DE UX
 
@@ -879,4 +852,53 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 
 **Última actualización:** 2025-01-28  
 **Versión del documento:** 1.0
+
+
+
+
+### 4.3 MÓDULO DE REPORTES
+
+#### TAREA-4.3.1: Crear Servicio de Reportes
+- Crear archivo `services/reportesService.js`
+- Implementar método `reporteVentasPorVendedora(periodo)` que agrupe ventas por vendedora
+- Implementar método `reporteGastosPorCategoria(periodo)` que agrupe gastos por categoría
+- Implementar método `reporteRentabilidad(periodo)` que calcule ganancia neta (ventas - gastos)
+- Implementar método `reporteComisiones(periodo)` que calcule comisiones pagadas por vendedora
+- Implementar método `reporteTendencias(fechaInicio, fechaFin)` que analice tendencias de ventas y gastos
+- Usar repositorios existentes para obtener datos
+
+#### TAREA-4.3.2: Crear Controlador de Reportes
+- Crear archivo `controllers/reportesController.js`
+- Implementar endpoint GET /reportes/ventas-por-vendedora con parámetro periodo
+- Implementar endpoint GET /reportes/gastos-por-categoria con parámetro periodo
+- Implementar endpoint GET /reportes/rentabilidad con parámetro periodo
+- Implementar endpoint GET /reportes/comisiones con parámetro periodo
+- Implementar endpoint GET /reportes/tendencias con parámetros fechaInicio y fechaFin
+- Formatear respuestas en formato adecuado para gráficos y tablas
+
+#### TAREA-4.3.3: Crear Rutas de Reportes
+- Crear archivo `routes/reportes.js`
+- Definir todas las rutas de reportes
+- Aplicar middleware de autenticación
+- Registrar rutas en app.js
+
+#### TAREA-4.3.4: Implementar Componente de Reportes en Frontend
+- Modificar componente Reportes.jsx para conectarlo al backend
+- Implementar selector de período (mes, trimestre, año, rango personalizado)
+- Implementar vista de reporte de ventas por vendedora con gráfico de barras
+- Implementar vista de reporte de gastos por categoría con gráfico de donut o barras
+- Implementar vista de reporte de rentabilidad con KPIs y gráfico de líneas
+- Implementar vista de reporte de comisiones con tabla detallada
+- Implementar vista de tendencias con gráficos comparativos
+- Agregar botón para exportar reportes (preparar para futura implementación de PDF/Excel)
+- Integrar con los endpoints del backend
+
+---
+
+## SPRINT 5: FUNCIONALIDADES AVANZADAS Y MEJORAS
+
+**Estado:** Pendiente  
+**Prioridad:** Media  
+**Objetivo:** Agregar funcionalidades avanzadas como importación masiva, pagos de ventas, auditoría y validaciones.
+
 
