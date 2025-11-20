@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { validarAsistenciaFrontend } from '../utils/validators';
+// Importamos el CSS específico
+import './Css/Asistencias.css'; 
 
-// Componente simple para gestionar asistencias: listado por fecha y formulario rápido
 export default function Asistencias() {
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0,10));
   const [registros, setRegistros] = useState([]);
@@ -53,49 +54,103 @@ export default function Asistencias() {
   };
 
   return (
-    <div>
-      <h3>Asistencias</h3>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <label>Fecha:</label>
-        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
-        <button onClick={buscarPorFecha}>Buscar</button>
-      </div>
-
-      <div style={{ marginTop: 12, border: '1px solid #ddd', padding: 12 }}>
-        <h4>Registrar asistencia rápida</h4>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <select value={form.vendedora_id} onChange={(e) => setForm({ ...form, vendedora_id: e.target.value })}>
-            <option value="">--Seleccione vendedora--</option>
-            {vendedoras.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
-          </select>
-          <label>
-            <input type="checkbox" checked={form.presente} onChange={(e) => setForm({ ...form, presente: e.target.checked })} /> Presente
-          </label>
-          <input placeholder="Motivo (opcional)" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} />
-          <button onClick={handleRegistrar}>Registrar</button>
+    <div className="asistencias-container">
+      {/* Header y Filtro */}
+      <div className="page-header">
+        <h3 className="page-title">Gestión de Asistencias</h3>
+        <div className="filter-group">
+          <input 
+            type="date" 
+            className="input-field"
+            value={fecha} 
+            onChange={(e) => setFecha(e.target.value)} 
+          />
+          <button className="btn btn-secondary" onClick={buscarPorFecha}>
+            🔍 Buscar
+          </button>
         </div>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <h4>Registros ({registros.length})</h4>
-        {loading ? <p>Cargando...</p> : (
-          registros.length === 0 ? <p>No hay registros</p> : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Card de Formulario */}
+      <div className="card-box">
+        <h4 className="card-header-title">Registrar asistencia rápida</h4>
+        <div className="form-row">
+          <select 
+            className="input-field"
+            style={{ minWidth: '200px' }}
+            value={form.vendedora_id} 
+            onChange={(e) => setForm({ ...form, vendedora_id: e.target.value })}
+          >
+            <option value="">-- Seleccione vendedora --</option>
+            {vendedoras.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+          </select>
+          
+          <label className="checkbox-label">
+            <input 
+              type="checkbox" 
+              checked={form.presente} 
+              onChange={(e) => setForm({ ...form, presente: e.target.checked })} 
+            /> 
+            <span>Presente</span>
+          </label>
+          
+          <input 
+            className="input-field"
+            style={{ flex: 1 }}
+            placeholder="Motivo (opcional)" 
+            value={form.motivo} 
+            onChange={(e) => setForm({ ...form, motivo: e.target.value })} 
+          />
+          
+          <button className="btn btn-primary" onClick={handleRegistrar}>
+            Registrar
+          </button>
+        </div>
+      </div>
+
+      {/* Card de Tabla */}
+      <div className="card-box" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+           <h4 className="card-header-title" style={{ margin: 0 }}>Registros ({registros.length})</h4>
+        </div>
+        
+        {loading ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Cargando...</div>
+        ) : (
+          registros.length === 0 ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>No hay registros para esta fecha.</div>
+          ) : (
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>Vendedora</th>
+                  <th>Vendedor/a</th>
                   <th>Fecha</th>
-                  <th>Presente</th>
+                  <th>Estado</th>
                   <th>Motivo</th>
                 </tr>
               </thead>
               <tbody>
                 {registros.map(r => (
                   <tr key={r.id}>
-                    <td>{r.vendedora_id ? (r.vendedora?.nombre || r.vendedora_id) : '--'}</td>
-                    <td>{r.fecha ? new Date(r.fecha).toLocaleDateString() : ''}</td>
-                    <td>{r.presente ? 'Sí' : 'No'}</td>
-                    <td>{r.motivo || ''}</td>
+                    <td style={{ fontWeight: 500 }}>
+                      {r.vendedora && r.vendedora.nombre
+                        ? r.vendedora.nombre
+                        : '--'}
+                    </td>
+                  <td>
+                    { r.fecha
+                        ? r.fecha.slice(0, 10).split('-').reverse().join('/') 
+                        : ''
+                    }
+                    </td>
+                    <td>
+                      <span className={`badge ${r.presente ? 'badge-presente' : 'badge-ausente'}`}>
+                        {r.presente ? 'Presente' : 'Ausente'}
+                      </span>
+                    </td>
+                    <td style={{ color: r.motivo ? 'inherit' : '#94a3b8' }}>
+                      {r.motivo || '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

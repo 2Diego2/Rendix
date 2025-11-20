@@ -6,7 +6,6 @@ const prisma = require('../prismaClient');
  * Retorna array de registros y calcula dias presentes/ausentes se puede hacer en servicio
  */
 async function findByVendedoraAndPeriodo(vendedoraId, periodo) {
-  // Suponemos periodo 'YYYY-MM' -> calculamos inicio y fin
   const [year, month] = periodo.split('-').map(Number);
   const inicio = new Date(Date.UTC(year, month - 1, 1));
   const fin = new Date(Date.UTC(year, month, 1));
@@ -16,21 +15,47 @@ async function findByVendedoraAndPeriodo(vendedoraId, periodo) {
       vendedora_id: Number(vendedoraId),
       fecha: { gte: inicio, lt: fin },
     },
+    include: {
+      vendedora: {
+        select: {
+          id: true,
+          nombre: true,
+        }
+      }
+    },
     orderBy: { fecha: 'asc' },
   });
 }
+
 
 /**
  * Obtiene todas las asistencias de una fecha (Date o string 'YYYY-MM-DD')
  */
 async function findByFecha(fecha) {
   const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
-  const inicio = new Date(Date.UTC(fechaObj.getUTCFullYear(), fechaObj.getUTCMonth(), fechaObj.getUTCDate()));
+  const inicio = new Date(Date.UTC(
+    fechaObj.getUTCFullYear(),
+    fechaObj.getUTCMonth(),
+    fechaObj.getUTCDate()
+  ));
   const siguiente = new Date(inicio);
   siguiente.setUTCDate(inicio.getUTCDate() + 1);
 
-  return prisma.asistencia.findMany({ where: { fecha: { gte: inicio, lt: siguiente } } });
+  return prisma.asistencia.findMany({
+    where: { fecha: { gte: inicio, lt: siguiente } },
+    include: {
+      vendedora: {
+        select: {
+          id: true,
+          nombre: true,
+        }
+      }
+    },
+    orderBy: { fecha: 'asc' }
+  });
 }
+
+
 
 /**
  * Crea una asistencia
