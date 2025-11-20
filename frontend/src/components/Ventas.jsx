@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../utils/api";
+import { validarVentaFrontend } from '../utils/validators';
 // 1. Importamos el hook del FiltroContext
 import { useFiltro } from './Filtro/FiltroContext'; // (Asegúrate que la ruta sea correcta)
+import './Css/Ventas.css';
 
 const Ventas = () => {
   // 2. Leemos el rango de días del contexto
@@ -13,6 +15,7 @@ const Ventas = () => {
   const [cantidadPeriodo, setCantidadPeriodo] = useState(0);
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [formErrors, setFormErrors] = useState([]);
   const [productos, setProductos] = useState([{ nombre: "", cantidad: 1, precio: "" }]);
   const [vendedoras, setVendedoras] = useState([]);
   const [vendedoraSeleccionada, setVendedoraSeleccionada] = useState(null);
@@ -84,35 +87,55 @@ const Ventas = () => {
   };
   // ------------------------------------------
 
-  const realizarVenta = async () => {
-    const productosValidos = productos.filter(
-      (p) => p.nombre.trim() !== "" && p.cantidad > 0 && p.precio > 0
-    );
+const realizarVenta = async () => {
+    // PASO 1: Preparar datos para el VALIDADOR
+    // No convertimos tipos todavía, pasamos el estado crudo para que el validador decida
+    const datosParaValidar = {
+      items: productos, 
+      vendedora_id: vendedoraSeleccionada 
+    };
 
-    if (productosValidos.length === 0) {
-      // Deberías usar un modal aquí, 'alert' puede no funcionar.
-      console.error("Agrega al menos un producto válido.");
-      return;
+    // PASO 2: Ejecutar la validación
+    const resultadoValidacion = validarVentaFrontend(datosParaValidar);
+
+    // PASO 3: Si hay errores, mostramos y cancelamos
+    if (!resultadoValidacion.valid) {
+      setFormErrors(resultadoValidacion.errors);
+      return; // <--- AQUÍ SE DETIENE SI HAY ERROR
     }
 
-    try {
-      setLoading(true); // Usamos el 'loading' general
-      const payload = {
-        productos: productosValidos,
-      };
-      if (vendedoraSeleccionada) payload.vendedora_id = vendedoraSeleccionada;
+    
+  // PASO 4: Si pasó la validación, preparamos datos para el BACKEND
+    const payload = {
+      vendedora_id: Number(vendedoraSeleccionada),
+      
+      // CAMBIO CLAVE: Usamos "productos" en vez de "items"
+      // y mantenemos "nombre" y "precio" que es lo que suele esperar el validador
+      productos: productos.map(p => ({
+        nombre: p.nombre.trim(),
+        cantidad: Number(p.cantidad),
+        precio: Number(p.precio)
+      })),
+      
+      // AGREGADO DE SEGURIDAD: Algunos validadores exigen este campo aunque esté vacío
+      pagos: [] 
+    };
 
+    // PASO 5: Enviar
+    try {
+      setLoading(true);
       await api.post('/ventas', payload);
       
-      // 8. IMPORTANTE: Volvemos a llamar a 'obtenerVentas'
-      // Esto recarga la lista con el filtro actual ('rangoDias')
-      // y asegura que la nueva venta (de hoy) aparezca si el filtro es >= 0.
+      // Éxito
       await obtenerVentas(); 
-
       setProductos([{ nombre: "", cantidad: 1, precio: "" }]);
+      setVendedoraSeleccionada(null); // Reseteamos select vendedora también
       setMostrarFormulario(false);
+      setFormErrors([]);
     } catch (err) {
       console.error("Error al registrar venta:", err);
+      const mensaje = err.response?.data?.error || "Error al registrar la venta.";
+      setFormErrors([mensaje]);
     } finally {
       setLoading(false);
     }
@@ -162,14 +185,21 @@ const Ventas = () => {
                       borderRadius: "var(--radius-sm)",
                     }}
                   />
-                  <input
+                    <input
                     type="number"
                     placeholder="Cant."
                     min="1"
-                    value={producto.cantidad}
-                    onChange={(e) =>
-                      handleProductoChange(index, "cantidad", Number(e.target.value))
-                    }
+                    value={producto.cantidad === "" ? "" : producto.cantidad}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleProductoChange(index, "cantidad", value === "" ? "" : Number(value));
+                    }}
+                    onBlur={() => {
+                      // si quedó vacío → poner valor válido
+                      if (producto.cantidad === "") {
+                        handleProductoChange(index, "cantidad", 1);
+                      }
+                    }}
                     style={{
                       width: "70px",
                       padding: "8px",
@@ -181,10 +211,17 @@ const Ventas = () => {
                     type="number"
                     placeholder="Precio"
                     min="0"
-                    value={producto.precio}
-                    onChange={(e) =>
-                      handleProductoChange(index, "precio", Number(e.target.value))
-                    }
+                    value={producto.precio === "" ? "" : producto.precio}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleProductoChange(index, "precio", value === "" ? "" : Number(value));
+                    }}
+                    onBlur={() => {
+                      // si quedó vacío → poner valor válido
+                      if (producto.precio === "") {
+                        handleProductoChange(index, "precio", 0);
+                      }
+                    }}
                     style={{
                       width: "100px",
                       padding: "8px",
@@ -192,6 +229,7 @@ const Ventas = () => {
                       borderRadius: "var(--radius-sm)",
                     }}
                   />
+
                   <button
                     className="btn btn-outline"
                     onClick={() => eliminarProducto(index)}
@@ -201,6 +239,13 @@ const Ventas = () => {
                   </button>
                 </div>
               ))}
+              {formErrors && formErrors.length > 0 && (
+                <div style={{ color: 'red', marginTop: 8 }}>
+                  <ul>
+                    {formErrors.map((e, i) => <li key={i}>{e}</li>)}
+                  </ul>
+                </div>
+              )}
               <button className="btn btn-outline" onClick={agregarProducto}>
                 + Agregar producto
               </button>

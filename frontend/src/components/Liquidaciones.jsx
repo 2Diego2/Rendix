@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
+import { validarLiquidacionFrontend } from '../utils/validators';
 
 // Componente para generar y listar liquidaciones
 // Variables y funciones en español para facilitar mantenimiento
@@ -44,6 +45,13 @@ export default function Liquidaciones() {
         presentismo_bonus_rate: Number(tasaBono) / 100,
         presentismo_mode: modoPresentismo,
       };
+
+      const valid = validarLiquidacionFrontend({ periodo: body.periodo, presentismo_threshold: body.presentismo_threshold, presentismo_bonus_rate: body.presentismo_bonus_rate, presentismo_mode: body.presentismo_mode });
+      if (!valid.valid) {
+        alert('Errores: ' + valid.errors.join('; '));
+        setCargando(false);
+        return;
+      }
 
       const res = await api.post('/liquidaciones/generar', body);
       setResultado(res.data);

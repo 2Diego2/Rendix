@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const asistenciasController = require('../controllers/asistenciasController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { validar } = require('../middlewares/validationMiddleware');
+const { asistenciaSchema } = require('../utils/validators');
 
 // Todas las rutas protegiadas por JWT
 router.use(authMiddleware);
@@ -13,7 +15,7 @@ router.get('/', asistenciasController.getAll);
 router.get('/:vendedoraId/:periodo', asistenciasController.getByVendedoraPeriodo);
 
 // POST /asistencias  -> crear asistencia individual
-router.post('/', asistenciasController.create);
+router.post('/', validar(asistenciaSchema, 'body'), asistenciasController.create);
 
 // POST /asistencias/bulk -> crear asistencias masivas
 router.post('/bulk', asistenciasController.bulkCreate);

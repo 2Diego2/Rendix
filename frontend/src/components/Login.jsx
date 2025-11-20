@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
+import { validarLoginFrontend } from '../utils/validators';
 
 export default function Login({ onLoginExitoso }) {
   const [email, setEmail] = useState('');
@@ -12,6 +13,13 @@ export default function Login({ onLoginExitoso }) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    // Validación básica en frontend para mejorar UX
+    const check = validarLoginFrontend({ email, password });
+    if (!check.valid) {
+      setError(check.errors.join('; '));
+      setLoading(false);
+      return;
+    }
     try {
       const respuesta = await api.post('/auth/login', { email, password });
       const { token, usuario } = respuesta.data;

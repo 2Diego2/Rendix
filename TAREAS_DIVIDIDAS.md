@@ -1,44 +1,7 @@
 
 
 --diego
-### 5.2 SISTEMA DE IMPORTACIÓN MASIVA
 
-#### TAREA-5.2.1: Crear Servicio de Importación
-- Crear archivo `services/importacionService.js`
-- Implementar método `procesarArchivoCSV(archivo, usuarioId)` que:
-  - Lea el archivo CSV
-  - Valide el formato (columnas esperadas)
-  - Procese cada fila y valide datos
-  - Cree registros de ventas en lote
-  - Registre el batch de importación
-  - Retorne estadísticas (filas totales, importadas, fallidas)
-- Manejar errores de formato y datos inválidos
-- Implementar validación de vendedoras (debe existir en BD)
-
-#### TAREA-5.2.2: Crear Controlador de Importación
-- Crear archivo `controllers/importacionController.js`
-- Implementar endpoint POST /importaciones/ventas que reciba archivo CSV
-- Usar middleware de upload de archivos (multer)
-- Validar tipo de archivo (solo CSV)
-- Llamar al servicio de importación
-- Retornar resultado de la importación con estadísticas
-
-#### TAREA-5.2.3: Crear Rutas de Importación
-- Crear archivo `routes/importaciones.js`
-- Configurar multer para manejar upload de archivos
-- Definir ruta POST /importaciones/ventas
-- Aplicar middleware de autenticación
-- Registrar rutas en app.js
-
-#### TAREA-5.2.4: Implementar UI de Importación en Frontend
-- Crear componente Importaciones.jsx o agregar sección en Ventas
-- Implementar formulario de carga de archivo CSV
-- Mostrar plantilla de formato esperado
-- Mostrar progreso de importación
-- Mostrar resultados (filas importadas, errores)
-- Mostrar historial de importaciones realizadas
-
---diego
 
 ### 5.4 VALIDACIONES Y MANEJO DE ERRORES
 

@@ -53,3 +53,7 @@ testConexion();
 
 module.exports = prisma;
 
+// Middleware de manejo de errores (al final)
+const errorHandler = require('./middlewares/errorHandler');
+app.use(errorHandler);
+

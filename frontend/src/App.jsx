@@ -5,7 +5,6 @@ import "./App.css"
 import { Sidebar } from "./components/Sidebar"
 import { Header } from "./components/Header"
 import { DashboardContent } from "./components/Dash"
-import { Actividades } from "./components/Actividades"
 import  Ventas  from "./components/Ventas"
 import { Gastos } from "./components/Gastos"
 import Liquidaciones from "./components/Liquidaciones"
@@ -56,8 +55,6 @@ export default function Home() {
     switch (currentPage) {
       case "dashboard":
         return <DashboardContent />
-      case "actividades":
-        return <Actividades />
       case "asistencias":
         return <Asistencias />
       case "ventas":

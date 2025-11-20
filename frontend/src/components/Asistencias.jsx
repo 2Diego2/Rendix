@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
+import { validarAsistenciaFrontend } from '../utils/validators';
 
 // Componente simple para gestionar asistencias: listado por fecha y formulario rápido
 export default function Asistencias() {
@@ -38,8 +39,9 @@ export default function Asistencias() {
 
   const handleRegistrar = async () => {
     try {
-      if (!form.vendedora_id) return alert('Selecciona una vendedora');
       const payload = { vendedora_id: Number(form.vendedora_id), fecha, presente: !!form.presente, motivo: form.motivo };
+      const valid = validarAsistenciaFrontend(payload);
+      if (!valid.valid) return alert('Errores: ' + valid.errors.join('; '));
       await api.post('/asistencias', payload);
       setForm({ vendedora_id: '', presente: true, motivo: '' });
       await buscarPorFecha();

@@ -3,12 +3,14 @@ const router = express.Router();
 const liquidacionesController = require('../controllers/liquidacionesController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const prisma = require('../prismaClient'); // Necesitamos prisma para buscar la data
+const { validar } = require('../middlewares/validationMiddleware');
+const { liquidacionGenerarSchema } = require('../utils/validators');
 
 router.use(authMiddleware);
 
 
 // POST /liquidaciones/generar  { periodo: 'YYYY-MM' }
-router.post('/generar', liquidacionesController.generarPeriodo);
+router.post('/generar', validar(liquidacionGenerarSchema, 'body'), liquidacionesController.generarPeriodo);
 
 // GET /liquidaciones?v periodo=YYYY-MM
 router.get('/', liquidacionesController.getByPeriodo);

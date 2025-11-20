@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import api from '../utils/api';
+import { validarGastoFrontend } from '../utils/validators';
 
 export function Gastos() {
   const [gastos, setGastos] = useState([])
@@ -57,6 +58,16 @@ export function Gastos() {
       })
     }
 
+    // Validar cada gasto antes de enviar
+    const errores = [];
+    for (let i = 0; i < nuevosGastos.length; i++) {
+      const v = validarGastoFrontend(nuevosGastos[i]);
+      if (!v.valid) errores.push(`Fila ${i + 1}: ${v.errors.join('; ')}`);
+    }
+    if (errores.length > 0) {
+      return alert('Errores en los montos: ' + errores.join(' | '));
+    }
+
     // Enviar al backend y actualizar el estado localmente usando Axios
     api.post('/gastos', nuevosGastos)
       .then((res) => setGastos(res.data.gastosHoy || []))
@@ -71,7 +82,8 @@ export function Gastos() {
   // Form handler simple para crear un solo gasto
   const handleCrearGasto = (e) => {
     e.preventDefault()
-    if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido')
+    const valid = validarGastoFrontend({ fecha: new Date().toISOString().split('T')[0], monto: Number(nuevoMonto), categoria: nuevaCategoria, descripcion: nuevoDescripcion, creado_por: 1, periodo: new Date().toISOString().slice(0,7) });
+    if (!valid.valid) return alert('Errores: ' + valid.errors.join('; '))
     const gasto = {
       concepto: nuevoConcepto || 'Sin concepto',
       descripcion: nuevoDescripcion || '',

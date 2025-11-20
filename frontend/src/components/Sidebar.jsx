@@ -3,7 +3,6 @@
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: "📊" },
   { id: "ventas", label: "Ventas", icon: "📈" },
-  { id: "actividades", label: "Actividades", icon: "👥" },
   { id: "asistencias", label: "Asistencias", icon: "🗓️" },
   { id: "liquidaciones", label: "Liquidaciones", icon: "📄" },
   { id: "gastos", label: "Gastos", icon: "💰" },
@@ -11,7 +10,6 @@ const menuItems = [
   { id: "gestionar_vendedoras", label: "Gestionar vendedoras", icon: "👩‍💼" },
 ]
 
-const shortcuts = [{ id: "inventar", label: "Inventar", icon: "📦" }]
 
 export function Sidebar({ currentPage, onPageChange }) {
   return (
@@ -37,14 +35,7 @@ export function Sidebar({ currentPage, onPageChange }) {
         ))}
 
         {/* Shortcuts Section */}
-        <div className="shortcuts-section">
-          <p className="shortcuts-title">SHORTCUTS</p>
-          {shortcuts.map((item) => (
-            <button key={item.id} className="nav-item">
-              <span className="icon">{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
+        <div className="shortcuts-section">      
         </div>
       </nav>
     </div>

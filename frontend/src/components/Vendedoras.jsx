@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../utils/api'
+import { validarVendedoraFrontend } from '../utils/validators'
 
 // Componente minimal para gestionar vendedoras (lista, crear, editar, eliminar)
 export function Vendedoras() {
@@ -51,13 +52,16 @@ export function Vendedoras() {
   // Crear o actualizar vendedora
   async function guardar(e) {
     e.preventDefault()
-    // Validaciones simples en frontend
-    if (!nombre.trim()) return alert('Nombre obligatorio')
+    // Validaciones en frontend con mensajes claros
     const payload = {
       nombre: nombre.trim(),
       codigo: codigo.trim() || undefined,
       sueldo_base: sueldoBase ? Number(sueldoBase) : 0,
       porcentaje_comision: porcentaje ? Number(porcentaje) : 0,
+    }
+    const valid = validarVendedoraFrontend(payload)
+    if (!valid.valid) {
+      return alert('Errores: ' + valid.errors.join('; '))
     }
 
     try {
