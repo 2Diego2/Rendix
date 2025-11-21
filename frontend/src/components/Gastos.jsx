@@ -18,31 +18,30 @@ export function Gastos() {
   }, []);
 
   // Crear un nuevo gasto
-  const handleCrearGasto = (e) => {
-    e.preventDefault();
-    if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido');
+    const handleCrearGasto = (e) => {
+      e.preventDefault();
+      if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido');
 
-    const gasto = {
-      concepto: nuevoNombre || 'Sin nombre',
-      descripcion: nuevaDescripcion || '',
-      monto: Number(nuevoMonto),
-      fecha: new Date().toISOString().split('T')[0],
-      categoria: nuevaCategoria || 'Adicional',
-    };
-
-    api.post('/gastos', [gasto])
-      .then(res => {
-        setGastos(res.data.gastosHoy || []);
-        setNuevoNombre('');
-        setNuevaDescripcion('');
-        setNuevoMonto('');
-        setNuevaCategoria('Adicional');
+      api.post('/gastos', {
+        monto: Number(nuevoMonto),
+        detalle: nuevaDescripcion || nuevoNombre || "Sin detalle",
       })
-      .catch(err => {
-        console.error('Error al crear gasto:', err);
-        alert('Error al crear gasto');
-      });
-  };
+        .then(() => {
+          // Volver a cargar los gastos del día después de crear uno nuevo
+          return api.get('/gastos/hoy');
+        })
+        .then(res => {
+          setGastos(res.data.gastosHoy || []);
+          setNuevoNombre('');
+          setNuevaDescripcion('');
+          setNuevoMonto('');
+          setNuevaCategoria('Adicional');
+        })
+        .catch(err => {
+          console.error('Error al crear gasto:', err);
+          alert('Error al crear gasto');
+        });
+    };
 
   // Eliminar gasto
   const handleEliminar = (id) => {
@@ -75,40 +74,127 @@ export function Gastos() {
       });
   };
 
+  const descargarExcel = () => {
+    fetch("http://localhost:3001/gastos/exportar/excel")
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "gastos.xlsx";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+  };
+
   return (
     <div className="dashboard-content">
 
       {/* Formulario para crear gasto */}
-      <div className="card" style={{ marginBottom: "20px", padding: "12px" }}>
-        <form onSubmit={handleCrearGasto} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nuevoNombre}
-            onChange={(e) => setNuevoNombre(e.target.value)}
-            style={{ padding: '6px' }}
-          />
-          <input
-            type="text"
-            placeholder="Descripción"
-            value={nuevaDescripcion}
-            onChange={(e) => setNuevaDescripcion(e.target.value)}
-            style={{ padding: '6px' }}
-          />
-          <input
-            type="number"
-            placeholder="Monto"
-            value={nuevoMonto}
-            onChange={(e) => setNuevoMonto(e.target.value)}
-            style={{ padding: '6px', width: '100px' }}
-          />
-          <select value={nuevaCategoria} onChange={(e) => setNuevaCategoria(e.target.value)} style={{ padding: '6px' }}>
-            <option>Adicional</option>
-            <option>Fijo</option>
-            <option>Variable</option>
-          </select>
-          <button type="submit" style={{ padding: '6px 10px' }}>Agregar gasto</button>
-        </form>
+      <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <form
+            onSubmit={handleCrearGasto}
+            style={{
+              display: "flex",
+              gap: "12px",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nuevoNombre}
+              onChange={(e) => setNuevoNombre(e.target.value)}
+              style={{
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                width: "150px",
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Descripción"
+              value={nuevaDescripcion}
+              onChange={(e) => setNuevaDescripcion(e.target.value)}
+              style={{
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                width: "220px",
+              }}
+            />
+
+            <input
+              type="number"
+              placeholder="Monto"
+              value={nuevoMonto}
+              onChange={(e) => setNuevoMonto(e.target.value)}
+              style={{
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                width: "110px",
+              }}
+            />
+
+            <select
+              value={nuevaCategoria}
+              onChange={(e) => setNuevaCategoria(e.target.value)}
+              style={{
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                width: "130px",
+                background: "white",
+              }}
+            >
+              <option>Adicional</option>
+              <option>Fijo</option>
+              <option>Variable</option>
+            </select>
+
+            <button
+              type="submit"
+              style={{
+                padding: "8px 14px",
+                backgroundColor: "var(--primary)",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              Agregar gasto
+            </button>
+          </form>
+
+          <button
+            onClick={descargarExcel}
+            style={{
+              padding: "8px 14px",
+              backgroundColor: "#16A34A", // verde éxito
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Exportar Excel
+          </button>
+        </div>
       </div>
 
       {/* Tabla de gastos */}

@@ -1,6 +1,6 @@
 const { PrismaClient } = require("../generated/prisma/index.js");
 const prisma = new PrismaClient();
-
+import ExcelJS from "exceljs";
 // ======================================================
 // OBTENER TODOS LOS GASTOS
 // ======================================================
@@ -92,4 +92,55 @@ module.exports = {
   registrarGasto,
   eliminarGasto,
   actualizarGasto,
+};
+
+
+export const exportarExcelGastos = async (req, res) => {
+  try {
+    const gastos = await prisma.gasto.findMany({
+      include: {
+        usuario: {
+          select: { nombre: true }
+        }
+      }
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Gastos");
+
+    worksheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Fecha", key: "fecha", width: 15 },
+      { header: "Monto", key: "monto", width: 15 },
+      { header: "Categoría", key: "categoria", width: 20 },
+      { header: "Descripción", key: "descripcion", width: 30 },
+      { header: "Periodo", key: "periodo", width: 15 },
+      { header: "Cargado Por", key: "usuario", width: 25 }
+    ];
+
+    gastos.forEach(gasto => {
+      worksheet.addRow({
+        id: gasto.id,
+        fecha: gasto.fecha.toISOString().slice(0, 10),
+        monto: gasto.monto.toString(),
+        categoria: gasto.categoria,
+        descripcion: gasto.descripcion,
+        periodo: gasto.periodo,
+        usuario: gasto.usuario ? gasto.usuario.nombre : "N/A"
+      });
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", "attachment; filename=gastos.xlsx");
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al exportar Excel" });
+  }
 };

@@ -9,8 +9,9 @@ const authRouter = require("./routes/auth");
 const vendedorasRouter = require("./routes/vendedoras");
 const exportRouter = require("./routes/export");
 const liquidacionesRouter = require("./routes/liquidaciones");
-const authMiddleware = require("./middlewares/authMiddleware");
+const reportesRouter = require("./routes/reportes");
 const prisma = require('../src/prismaClient');
+
 const app = express();
 
 app.use(cors({
@@ -21,21 +22,15 @@ app.use(cors({
 
 app.use(express.json());
 
-// 🟢 Rutas públicas
+// 🔹 Todas las rutas públicas
 app.use("/auth", authRouter);
-app.use("/exportar", exportRouter);   // SOLO ESTA
+app.use("/exportar", exportRouter);
 app.use("/liquidaciones", liquidacionesRouter);
-
-// 🔒 Middleware de autenticación
-app.use(authMiddleware);
-
-// 🔐 Rutas protegidas
+app.use("/reportes", reportesRouter);
+app.use("/vendedoras", vendedorasRouter);
 app.use("/ventas", ventasRouter);
 app.use("/gastos", gastosRouter);
 app.use("/usuarios", usuariosRouter);
-app.use("/vendedoras", vendedorasRouter);
-
-
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

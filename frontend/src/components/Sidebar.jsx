@@ -7,7 +7,7 @@ import { FaChartLine } from "react-icons/fa"; import { TbReportAnalytics } from 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { id: "ventas", label: "Ventas", icon: <FaChartLine /> },
-  { id: "actividades", label: "Actividades", icon: <PiListBulletsBold /> },
+  { id: "asistencias", label: "Asistencia", icon: <PiListBulletsBold /> },
   { id: "liquidaciones", label: "Liquidaciones", icon: <MdAttachMoney /> },
   { id: "gastos", label: "Gastos", icon: <MdMoneyOff /> },
   { id: "reportes", label: "Reportes", icon: <TbReportAnalytics /> },

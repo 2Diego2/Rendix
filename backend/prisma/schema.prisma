@@ -155,3 +155,12 @@ model Auditoria {
 
   @@map("auditoria")
 }
+
+model Reporte {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  tipo        String
+  fechaCreacion DateTime @default(now())
+  estado      String   @default("Generado")
+  tamaño      String
+}
