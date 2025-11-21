@@ -143,7 +143,7 @@
 - Agregar notificaciones de error con mensajes claros
 - Agregar notificaciones de advertencia (ej: gastos altos, liquidaciones pendientes)
 
-#### TAREA-6.4.2: Mejorar Feedback Visual
+#### TAREA-6.4.2: Mejorar Feedback Visual                                      **para que funcionen íconos instalar npm install react-icons**
 - Agregar estados de carga (spinners, skeletons) en componentes
 - Agregar confirmaciones antes de acciones destructivas (eliminar, reiniciar)
 - Mejorar mensajes de error para que sean más descriptivos

@@ -4,6 +4,58 @@
 import React, { useState } from 'react';
 // 1. Importamos el hook 'useFiltro' que crearemos en el siguiente paso
 import { useFiltro } from './Filtro/FiltroContext'; 
+import { FaCalendar } from "react-icons/fa"; import { IoMdMoon } from "react-icons/io"; import { FiSun } from "react-icons/fi";
+
+const exportar = async () => {
+  try {
+    let endpoint = "";
+
+    switch (currentPage) {
+      case "ventas":
+        endpoint = "/reportes/exportar/pdf?tipo=ventas";
+        break;
+      case "liquidaciones":
+        endpoint = "/reportes/exportar/pdf?tipo=liquidaciones";
+        break;
+      case "gastos":
+        endpoint = "/reportes/exportar/pdf?tipo=gastos";
+        break;
+      case "actividades":
+        endpoint = "/reportes/exportar/pdf?tipo=actividades";
+        break;
+      case "reportes":
+        endpoint = "/reportes/exportar/pdf?tipo=reportes";
+        break;
+      default:
+        alert("Esta página no tiene exportación todavía.");
+        return;
+    }
+
+    const res = await fetch("http://localhost:3000" + endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+
+    if (!res.ok) throw new Error("Error al generar PDF");
+
+    // Descargar el archivo
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte-${currentPage}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo exportar el PDF");
+  }
+};
+
 
 const pageNames = {
   dashboard: "Dashboard",
@@ -51,7 +103,7 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
         <div style={{ position: 'relative' }}>
           {/* Time selector (Ahora funcional) */}
           <button className="btn btn-outline" onClick={() => setMenuAbierto(!menuAbierto)}>
-            <span className="icon">📅</span>
+            <span className="icon"><FaCalendar /></span>
             {label} {/* El texto ahora es dinámico */}
             <span className="icon">▼</span>
           </button>
@@ -102,22 +154,15 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
           onClick={onThemeToggle}
           title={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
         >
-          <span className="icon">{isDarkMode ? "☀️" : "🌙"}</span>
+          <span className="icon">{isDarkMode ? <FiSun /> : <IoMdMoon /> }</span>
         </button>
-
-        {/* Export button */}
-        <button className="btn btn-primary">Exportar</button>
 
         {/* User info */}
         <div className="user-info">
-          <div className="avatar">JD</div>
-          <span className="user-name">Juan Díaz</span>
+          <div className="avatar">R</div>
+          <span className="user-name">Rendix</span>
         </div>
 
-        {/* More options */}
-        <button className="btn btn-ghost">
-          <span className="icon">⋯</span>
-        </button>
       </div>
     </header>
   )

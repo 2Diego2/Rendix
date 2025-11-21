@@ -25,6 +25,52 @@ const Ventas = () => {
   };
   const periodoLabel = getPeriodoLabel(rangoDias);
 
+  const exportarExcelVentas = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('No se encontró token. Por favor iniciá sesión.');
+        return;
+      }
+
+      // Ajustá el puerto si tu backend corre en otro (app.js usa PORT 3001 por defecto)
+      const url = `http://localhost:3001/exportar/excel/ventas?dias=${rangoDias || 0}`;
+
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        alert('No autorizado. Token inválido o expirado.');
+        return;
+      }
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => null);
+        console.error('Error al generar Excel', res.status, text);
+        alert('Error al generar Excel. Revisa la consola.');
+        return;
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const nombre = `ventas_${rangoDias === 0 ? 'hoy' : `ultimos_${rangoDias}_dias`}.xlsx`;
+      a.href = downloadUrl;
+      a.download = nombre;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error('Error exportarExcelVentas:', err);
+      alert('Ocurrió un error al exportar. Mira la consola.');
+    }
+  };
+
   // 5. Definimos la función de carga de datos con useCallback
   // La envolvemos en useCallback para que pueda ser llamada desde realizarVenta sin crear bucles
   const obtenerVentas = useCallback(async () => {
@@ -234,6 +280,9 @@ const Ventas = () => {
         {/* Registro de Ventas */}
         <div className="card">
           <div className="card-header">
+            <button className="btn btn-outline" onClick={exportarExcelVentas}>
+              Exportar Excel
+            </button>
             {/* 10. Actualizamos el título del registro */}
             <p className="card-title">Registro de ventas ({periodoLabel})</p>
             <p className="stat-change">({cantidadPeriodo} ventas)</p>

@@ -1,11 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const gastosController = require('../controllers/gastosController');
+const gastosController = require("../controllers/gastosController");
 
-// Rutas de gastos delegadas al controlador (usa Prisma a través del servicio)
-router.get('/hoy', gastosController.getGastosHoy);
-router.get('/rango', gastosController.getGastosPorRango);
-router.post('/', gastosController.createGastos);
-router.delete('/reiniciar', gastosController.reiniciarGastosHoy);
+// Registrar gasto
+router.post("/", gastosController.registrarGasto);
+
+// Obtener todos los gastos
+router.get("/", gastosController.obtenerGastos);
+
+// Eliminar un gasto
+router.delete("/:id", gastosController.eliminarGasto);
+
+// Actualizar un gasto
+router.put("/:id", gastosController.actualizarGasto);
 
 module.exports = router;

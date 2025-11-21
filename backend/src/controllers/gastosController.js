@@ -1,51 +1,95 @@
-// Controlador de gastos: handlers HTTP que llaman al servicio de gastos
-const gastosService = require('../services/gastosService');
+const { PrismaClient } = require("../generated/prisma/index.js");
+const prisma = new PrismaClient();
 
-async function getGastosHoy(req, res) {
+// ======================================================
+// OBTENER TODOS LOS GASTOS
+// ======================================================
+const obtenerGastos = async (req, res) => {
   try {
-    const result = await gastosService.getGastosHoy();
-    res.json({ gastosHoy: result.gastosHoy, totalHoy: result.totalHoy, cantidadHoy: result.cantidadHoy });
-  } catch (e) {
-    console.error('Error en getGastosHoy:', e);
-    res.status(500).json({ error: 'Error al obtener gastos del día' });
+    const gastos = await prisma.gasto.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(gastos);
+  } catch (error) {
+    console.error("Error al obtener gastos:", error);
+    res.status(500).json({ error: "Error al obtener los gastos" });
   }
-}
+};
 
-async function getGastosPorRango(req, res) {
+// ======================================================
+// REGISTRAR UN GASTO
+// ======================================================
+const registrarGasto = async (req, res) => {
   try {
-    const dias = parseInt(req.query.dias) || 30;
-    const result = await gastosService.getGastosPorRango(dias);
-    res.json({ gastosHoy: result.gastosHoy, totalHoy: result.totalHoy, cantidadHoy: result.cantidadHoy });
-  } catch (e) {
-    console.error('Error en getGastosPorRango:', e);
-    res.status(500).json({ error: 'Error al obtener gastos por rango' });
-  }
-}
+    const { monto, detalle } = req.body;
 
-async function createGastos(req, res) {
+    if (!monto || !detalle) {
+      return res
+        .status(400)
+        .json({ error: "Faltan campos obligatorios (monto y detalle)" });
+    }
+
+    const nuevoGasto = await prisma.gasto.create({
+      data: {
+        monto: Number(monto),
+        detalle,
+      },
+    });
+
+    res.json(nuevoGasto);
+  } catch (error) {
+    console.error("Error al crear gasto:", error);
+    res.status(500).json({ error: "Error al registrar el gasto" });
+  }
+};
+
+// ======================================================
+// ELIMINAR UN GASTO
+// ======================================================
+const eliminarGasto = async (req, res) => {
   try {
-    const gastos = req.body;
-    const usuarioId = req.user?.id || null; // tomado del middleware de autenticación
+    const { id } = req.params;
 
-    const created = await gastosService.createGastos(gastos, usuarioId);
-    // Obtener el estado actualizado de los gastos del día para devolverlo
-    const updated = await gastosService.getGastosHoy();
-    res.status(201).json({ mensaje: 'Gastos creados', created, gastosHoy: updated.gastosHoy, totalHoy: updated.totalHoy, cantidadHoy: updated.cantidadHoy });
-  } catch (e) {
-    console.error('Error en createGastos:', e);
-    const status = e.status || 500;
-    res.status(status).json({ error: e.message || 'Error al crear gastos' });
+    await prisma.gasto.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({ mensaje: "Gasto eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar gasto:", error);
+    res.status(500).json({ error: "Error al eliminar el gasto" });
   }
-}
+};
 
-async function reiniciarGastosHoy(req, res) {
+// ======================================================
+// ACTUALIZAR UN GASTO
+// ======================================================
+const actualizarGasto = async (req, res) => {
   try {
-    await gastosService.reiniciarGastosHoy();
-    res.json({ mensaje: 'Gastos del día reiniciados correctamente.' });
-  } catch (e) {
-    console.error('Error en reiniciarGastosHoy:', e);
-    res.status(500).json({ error: 'Error al reiniciar los gastos del día' });
-  }
-}
+    const { id } = req.params;
+    const { monto, detalle } = req.body;
 
-module.exports = { getGastosHoy, getGastosPorRango, createGastos, reiniciarGastosHoy };
+    const gastoActualizado = await prisma.gasto.update({
+      where: { id: Number(id) },
+      data: {
+        monto: monto ? Number(monto) : undefined,
+        detalle: detalle || undefined,
+      },
+    });
+
+    res.json(gastoActualizado);
+  } catch (error) {
+    console.error("Error al actualizar gasto:", error);
+    res.status(500).json({ error: "Error al actualizar el gasto" });
+  }
+};
+
+// ======================================================
+// EXPORTAR TODAS LAS FUNCIONES
+// ======================================================
+module.exports = {
+  obtenerGastos,
+  registrarGasto,
+  eliminarGasto,
+  actualizarGasto,
+};
