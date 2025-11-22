@@ -30,27 +30,23 @@ api.interceptors.request.use((config) => {
 
 // Interceptor de response: si recibimos 401, limpiar token y redirigir a login
 api.interceptors.response.use(
-  (resp) => resp, 
+  (resp) => resp,
   (error) => {
     const status = error?.response?.status;
-    
+
     // Detectamos si el error viene del endpoint de login
     const esLogin = error.config.url.includes('/login');
 
-<<<<<<< HEAD
     // Solo redirigimos si es 401/403 Y NO es un intento de login fallido
     if ((status === 401 || status === 403) && !esLogin) {
       console.warn("Sesión expirada. Redirigiendo al login...");
-      try { localStorage.removeItem('token'); } catch (e) {}
-      
+      try { localStorage.removeItem('token'); } catch (e) { }
+
       if (window.location.pathname !== '/login') {
-        window.location.href = '/login'; 
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
   }
 );
 export default api;
-=======
-export default api;
->>>>>>> origin/franrama

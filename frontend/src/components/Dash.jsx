@@ -35,29 +35,6 @@ export function DashboardContent() {
   const [gastosPieData, setGastosPieData] = useState([]);
   const [ultimosGastos, setUltimosGastos] = useState([]);
 
-// Estado para el Usuario ---
-  const [usuario, setUsuario] = useState({ nombre: 'Usuario' });
-
-  // Cargar usuario del localStorage al montar ---
-  useEffect(() => {
-    try {
-      const userStored = localStorage.getItem('usuario');
-      if (userStored) {
-        setUsuario(JSON.parse(userStored));
-      }
-    } catch (e) {
-      console.error("Error al leer usuario", e);
-    }
-  }, []);
-
-  // Función Cerrar Sesión
-  const handleLogout = () => {
-    if (confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('usuario');
-      window.location.href = '/login'; // Redirige forzadamente
-    }
-  };
 
   // Función para mostrar el texto del filtro actual
   const getPeriodoLabel = (dias) => {
@@ -75,7 +52,7 @@ export function DashboardContent() {
         const endpointVentas = rangoDias === 0
           ? `http://localhost:3001/ventas/hoy`
           : `http://localhost:3001/ventas/rango?dias=${rangoDias}`;
-        
+
         const endpointGastos = rangoDias === 0
           ? `http://localhost:3001/gastos/hoy`
           : `http://localhost:3001/gastos/rango?dias=${rangoDias}`;
@@ -182,85 +159,18 @@ export function DashboardContent() {
 
   if (loading) return <div className="dashboard-content">Cargando datos del dashboard...</div>;
 
- return (
+  return (
     <div className="dashboard-content" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      
-      {/* --- NUEVO: HEADER CON USUARIO Y LOGOUT --- */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        background: '#fff',
-        padding: '15px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #e2e8f0'
-      }}>
-        <div>
-           <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>Resumen General</h2>
-           <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Vista de {periodoLabel.toLowerCase()}</span>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-           {/* Información del Usuario */}
-           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                 width: '36px', 
-                 height: '36px', 
-                 borderRadius: '50%', 
-                 backgroundColor: '#0f172a', 
-                 color: 'white', 
-                 display: 'flex', 
-                 justifyContent: 'center', 
-                 alignItems: 'center',
-                 fontWeight: 'bold',
-                 fontSize: '14px'
-              }}>
-                 {/* Inicial del nombre */}
-                 {usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'U'}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                 <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>
-                    {usuario.nombre}
-                 </span>
-                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                    {usuario.rol || 'Usuario'}
-                 </span>
-              </div>
-           </div>
 
-           {/* Separador vertical */}
-           <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
-
-           {/* Botón Cerrar Sesión */}
-           <button 
-             onClick={handleLogout}
-             style={{
-               padding: '8px 16px',
-               backgroundColor: '#fee2e2',
-               color: '#991b1b',
-               border: '1px solid #fecaca',
-               borderRadius: '6px',
-               cursor: 'pointer',
-               fontSize: '0.85rem',
-               fontWeight: 600,
-               transition: 'all 0.2s'
-             }}
-             onMouseOver={(e) => e.target.style.backgroundColor = '#fecaca'}
-             onMouseOut={(e) => e.target.style.backgroundColor = '#fee2e2'}
-           >
-             Cerrar Sesión
-           </button>
-        </div>
-      </div>
       {/* --- SECCIÓN 1: KPIs (Tarjetas de Resumen) --- */}
       <div
         className="stats-grid"
-        style={{ 
-          display: "grid", 
+        style={{
+          display: "grid",
           // 4 columnas en desktop, 2 en tablet, 1 en móvil
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
-          gap: "16px" 
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "16px"
         }}
       >
         {/* Tarjeta de Ganancia Neta */}
@@ -271,7 +181,7 @@ export function DashboardContent() {
           </p>
           <span style={{ fontSize: "14px", color: "#777" }}>Ventas - Gastos</span>
         </div>
-        
+
         {/* Tarjeta de Ventas Totales */}
         <div className="card" style={{ padding: "16px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
           <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#555" }}>Ventas ({periodoLabel})</h3>
@@ -323,12 +233,12 @@ export function DashboardContent() {
       </div>
 
       {/* --- SECCIÓN 3: Desgloses (2 Columnas) --- */}
-      <div 
+      <div
         className="bottom-grid"
-        style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", 
-          gap: "16px" 
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "16px"
         }}
       >
         {/* Columna Izquierda: Gastos por Categoría */}
@@ -384,16 +294,16 @@ export function DashboardContent() {
                     <tr key={index} style={{ borderBottom: "1Gpx solid #f9f9f9" }}>
                       <td style={{ padding: "8px" }}>{gasto.concepto}</td>
                       <td style={{ padding: "8px" }}>
-                     <span style={{ 
-                      padding: "2px 6px", 
-                      borderRadius: "4px", 
-                      fontSize: "12px", 
-                      // Si es "Fijo" (sueldos), forzamos el color Naranja, si no busca en el array, si no gris.
-                      backgroundColor: gasto.categoria === 'Fijo' ? '#FF8042' : (COLORS_PIE[gastosPieData.findIndex(p => p.name === gasto.categoria) % COLORS_PIE.length] || "#ccc"),
-                      color: "white"
-                    }}>
-                      {gasto.categoria}
-                    </span>
+                        <span style={{
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          // Si es "Fijo" (sueldos), forzamos el color Naranja, si no busca en el array, si no gris.
+                          backgroundColor: gasto.categoria === 'Fijo' ? '#FF8042' : (COLORS_PIE[gastosPieData.findIndex(p => p.name === gasto.categoria) % COLORS_PIE.length] || "#ccc"),
+                          color: "white"
+                        }}>
+                          {gasto.categoria}
+                        </span>
                       </td>
                       <td style={{ padding: "8px", fontWeight: "600" }}>
                         {formatCurrency(gasto.monto)}

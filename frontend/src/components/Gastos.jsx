@@ -19,47 +19,31 @@ export function Gastos() {
   }, []);
 
   // Crear un nuevo gasto
-    const handleCrearGasto = (e) => {
-      e.preventDefault();
-      if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido');
+  const handleCrearGasto = (e) => {
+    e.preventDefault();
+    if (!nuevoMonto || Number(nuevoMonto) <= 0) return alert('Ingrese un monto válido');
 
-      api.post('/gastos', {
-        monto: Number(nuevoMonto),
-        detalle: nuevaDescripcion || nuevoNombre || "Sin detalle",
+    api.post('/gastos', {
+      monto: Number(nuevoMonto),
+      detalle: nuevaDescripcion || nuevoNombre || "Sin detalle",
+    })
+      .then(() => {
+        // Volver a cargar los gastos del día después de crear uno nuevo
+        return api.get('/gastos/hoy');
       })
-        .then(() => {
-          // Volver a cargar los gastos del día después de crear uno nuevo
-          return api.get('/gastos/hoy');
-        })
-        .then(res => {
-          setGastos(res.data.gastosHoy || []);
-          setNuevoNombre('');
-          setNuevaDescripcion('');
-          setNuevoMonto('');
-          setNuevaCategoria('Adicional');
-        })
-        .catch(err => {
-          console.error('Error al crear gasto:', err);
-          alert('Error al crear gasto');
-        });
-    };
+      .then(res => {
+        setGastos(res.data.gastosHoy || []);
+        setNuevoNombre('');
+        setNuevaDescripcion('');
+        setNuevoMonto('');
+        setNuevaCategoria('Adicional');
+      })
+      .catch(err => {
+        console.error('Error al crear gasto:', err);
+        alert('Error al crear gasto');
+      });
+  };
 
-<<<<<<< HEAD
-    // Validar cada gasto antes de enviar
-    const errores = [];
-    for (let i = 0; i < nuevosGastos.length; i++) {
-      const v = validarGastoFrontend(nuevosGastos[i]);
-      if (!v.valid) errores.push(`Fila ${i + 1}: ${v.errors.join('; ')}`);
-    }
-    if (errores.length > 0) {
-      return alert('Errores en los montos: ' + errores.join(' | '));
-    }
-
-    // Enviar al backend y actualizar el estado localmente usando Axios
-    api.post('/gastos', nuevosGastos)
-      .then((res) => setGastos(res.data.gastosHoy || []))
-      .catch((err) => console.error("Error al guardar gastos:", err))
-=======
   // Eliminar gasto
   const handleEliminar = (id) => {
     if (!confirm('¿Seguro que querés eliminar este gasto?')) return;
@@ -70,7 +54,6 @@ export function Gastos() {
         alert('Error al eliminar gasto');
       });
   };
->>>>>>> origin/franrama
 
   // Editar gasto (simple: modifica monto y descripción)
   const handleEditar = (id) => {
@@ -79,18 +62,7 @@ export function Gastos() {
     const nuevaDescripcion = prompt('Nueva descripción:', gasto.descripcion);
     if (nuevoMonto === null || nuevaDescripcion === null) return;
 
-<<<<<<< HEAD
-  // Form handler simple para crear un solo gasto
-  const handleCrearGasto = (e) => {
-    e.preventDefault()
-    const valid = validarGastoFrontend({ fecha: new Date().toISOString().split('T')[0], monto: Number(nuevoMonto), categoria: nuevaCategoria, descripcion: nuevoDescripcion, creado_por: 1, periodo: new Date().toISOString().slice(0,7) });
-    if (!valid.valid) return alert('Errores: ' + valid.errors.join('; '))
-    const gasto = {
-      concepto: nuevoConcepto || 'Sin concepto',
-      descripcion: nuevoDescripcion || '',
-=======
     api.put(`/gastos/${id}`, {
->>>>>>> origin/franrama
       monto: Number(nuevoMonto),
       descripcion: nuevaDescripcion,
     })
@@ -256,8 +228,8 @@ export function Gastos() {
                       fontSize: "12px",
                       backgroundColor:
                         gasto.categoria === "Fijo" ? "var(--chart-2)" :
-                        gasto.categoria === "Variable" ? "var(--chart-3)" :
-                        "var(--chart-4)",
+                          gasto.categoria === "Variable" ? "var(--chart-3)" :
+                            "var(--chart-4)",
                       color: "white",
                     }}
                   >

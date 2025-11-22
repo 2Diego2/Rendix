@@ -1,14 +1,12 @@
-<<<<<<< HEAD
 const express = require('express');
 const router = express.Router();
 const liquidacionesController = require('../controllers/liquidacionesController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const prisma = require('../prismaClient'); // Necesitamos prisma para buscar la data
+const prisma = require('../prismaClient');
 const { validar } = require('../middlewares/validationMiddleware');
 const { liquidacionGenerarSchema } = require('../utils/validators');
 
 router.use(authMiddleware);
-
 
 // POST /liquidaciones/generar  { periodo: 'YYYY-MM' }
 router.post('/generar', validar(liquidacionGenerarSchema, 'body'), liquidacionesController.generarPeriodo);
@@ -16,8 +14,8 @@ router.post('/generar', validar(liquidacionGenerarSchema, 'body'), liquidaciones
 // GET /liquidaciones?v periodo=YYYY-MM
 router.get('/', liquidacionesController.getByPeriodo);
 
-// GET /liquidaciones/:vendedoraId/:periodo
-router.get('/:vendedoraId/:periodo', liquidacionesController.getByVendedoraPeriodo);
+// GET /liquidaciones/excel -> Exportar Excel (Debe ir antes de /:id o /:vendedoraId)
+router.get('/excel', liquidacionesController.exportarLiquidacionesExcel);
 
 // PUT /liquidaciones/:id/pagar -> marcar como pagada
 router.put('/:id/pagar', async (req, res) => {
@@ -46,14 +44,14 @@ router.put('/:id/pagar', async (req, res) => {
     // 3. CREAR EL GASTO AUTOMÁTICAMENTE
     const gastosRepo = require('../repositories/gastosRepository');
 
-     const hoy = new Date();
+    const hoy = new Date();
     // Forzamos la fecha a medianoche UTC para que coincida con el filtro "Hoy"
     const fechaNormalizada = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()));
 
     await gastosRepo.create({
       fecha: fechaNormalizada, // Usamos la fecha normalizada
       monto: Number(liquidacion.total_pagar),
-      categoria: 'Fijo', 
+      categoria: 'Fijo',
       descripcion: `Liquidación sueldo: ${liquidacion.vendedora.nombre} - Período ${liquidacion.periodo}`,
       periodo: liquidacion.periodo,
       creado_por: usuarioId
@@ -68,14 +66,3 @@ router.put('/:id/pagar', async (req, res) => {
 });
 
 module.exports = router;
-
-=======
-const express = require("express");
-const router = express.Router();
-const { obtenerLiquidaciones, exportarLiquidacionesExcel } = require("../controllers/liquidacionesController");
-
-router.get("/", obtenerLiquidaciones);
-router.get("/excel", exportarLiquidacionesExcel);
-
-module.exports = router;
->>>>>>> origin/franrama

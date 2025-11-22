@@ -31,14 +31,8 @@ app.use("/vendedoras", vendedorasRouter);
 app.use("/ventas", ventasRouter);
 app.use("/gastos", gastosRouter);
 app.use("/usuarios", usuariosRouter);
-<<<<<<< HEAD
-app.use("/vendedoras", vendedorasRouter);
 const asistenciasRouter = require("./routes/asistencias");
 app.use("/asistencias", asistenciasRouter);
-const liquidacionesRouter = require("./routes/liquidaciones");
-app.use("/liquidaciones", liquidacionesRouter);
-=======
->>>>>>> origin/franrama
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
@@ -55,11 +49,6 @@ async function testConexion() {
 testConexion();
 
 module.exports = prisma;
-<<<<<<< HEAD
-
 // Middleware de manejo de errores (al final)
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
-
-=======
->>>>>>> origin/franrama

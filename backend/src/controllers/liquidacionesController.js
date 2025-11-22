@@ -1,5 +1,6 @@
-<<<<<<< HEAD
 const liquidacionesService = require('../services/liquidacionesService');
+const prisma = require("../prismaClient");
+const ExcelJS = require("exceljs");
 
 async function generarPeriodo(req, res) {
   try {
@@ -38,7 +39,10 @@ async function getByVendedoraPeriodo(req, res) {
 async function getByPeriodo(req, res) {
   try {
     const periodo = req.query.periodo;
-    if (!periodo) return res.status(400).json({ error: 'Query param periodo requerido' });
+    if (!periodo) {
+      // Si no hay periodo, usamos la lógica de obtener todas (Fran)
+      return obtenerLiquidaciones(req, res);
+    }
     const items = await require('../repositories/liquidacionesRepository').findByPeriodo(periodo);
     res.json({ liquidaciones: items });
   } catch (e) {
@@ -47,13 +51,7 @@ async function getByPeriodo(req, res) {
   }
 }
 
-module.exports = { generarPeriodo, getByVendedoraPeriodo, getByPeriodo };
-=======
-const prisma = require("../prismaClient");
-const ExcelJS = require("exceljs");
-
-
-exports.obtenerLiquidaciones = async (req, res) => {
+async function obtenerLiquidaciones(req, res) {
   try {
     const liquidaciones = await prisma.liquidacion.findMany({
       include: {
@@ -82,9 +80,9 @@ exports.obtenerLiquidaciones = async (req, res) => {
     console.error("❌ Error obteniendo liquidaciones:", error);
     res.status(500).json({ error: "Error obteniendo liquidaciones" });
   }
-};
+}
 
-module.exports.exportarLiquidacionesExcel = async (req, res) => {
+async function exportarLiquidacionesExcel(req, res) {
   try {
     const liquidaciones = await prisma.liquidacion.findMany({
       include: { vendedora: true }
@@ -141,5 +139,7 @@ module.exports.exportarLiquidacionesExcel = async (req, res) => {
     console.error("❌ Error exportando Excel:", error);
     res.status(500).json({ error: "No se pudo generar el Excel" });
   }
-};
->>>>>>> origin/franrama
+}
+
+module.exports = { generarPeriodo, getByVendedoraPeriodo, getByPeriodo, obtenerLiquidaciones, exportarLiquidacionesExcel };
+

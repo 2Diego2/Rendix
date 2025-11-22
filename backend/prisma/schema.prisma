@@ -9,13 +9,12 @@ datasource db {
 }
 
 model Usuario {
-<<<<<<< HEAD
   id            Int      @id @default(autoincrement())
   nombre        String   @db.VarChar(100)
   email         String   @unique @db.VarChar(150)
   password_hash String   @db.Text
   rol           String   @db.VarChar(50)
-  creado_en     DateTime @default(now()) @map("creado_en")
+  creado_en     DateTime? @default(now()) @map("creado_en") @db.Timestamp(6)
 
   // Relaciones
   gastos               Gasto[]
@@ -24,65 +23,27 @@ model Usuario {
   pagado_liquidaciones Liquidacion[] @relation("LiquidacionPagadoPor")
   import_batches       ImportBatch[]
   auditoria            Auditoria[]
-=======
-  id             Int           @id @default(autoincrement())
-  nombre         String        @db.VarChar(100)
-  email          String        @unique @db.VarChar(150)
-  password_hash  String
-  rol            String        @db.VarChar(50)
-  creado_en      DateTime?     @default(now()) @map("creado_en") @db.Timestamp(6)
-  auditoria      Auditoria[]
-  gastos         Gasto[]
-  import_batches ImportBatch[]
-  liquidaciones  Liquidacion[]
->>>>>>> origin/franrama
 
   @@map("usuarios")
 }
 
 model Vendedora {
-<<<<<<< HEAD
   id                  Int      @id @default(autoincrement())
   nombre              String   @db.VarChar(100)
   codigo              String?  @db.VarChar(50)
   sueldo_base         Decimal  @db.Decimal(12, 2)
   porcentaje_comision Decimal  @db.Decimal(5, 2)
-  creado_en           DateTime @default(now()) @map("creado_en")
+  creado_en           DateTime? @default(now()) @map("creado_en") @db.Timestamp(6)
 
   // Relaciones
   ventas        Venta[]
   asistencias   Asistencia[]
   liquidaciones Liquidacion[]
-=======
-  id                  Int           @id @default(autoincrement())
-  nombre              String        @db.VarChar(100)
-  codigo              String?       @db.VarChar(50)
-  sueldo_base         Decimal       @db.Decimal(12, 2)
-  porcentaje_comision Decimal       @db.Decimal(5, 2)
-  creado_en           DateTime?     @default(now()) @map("creado_en") @db.Timestamp(6)
-  asistencias         Asistencia[]
-  liquidaciones       Liquidacion[]
-  ventas              Venta[]
->>>>>>> origin/franrama
 
   @@map("vendedoras")
 }
 
 model ImportBatch {
-<<<<<<< HEAD
-  id               Int      @id @default(autoincrement())
-  usuario_id       Int
-  fecha            DateTime @default(now())
-  archivo_nombre   String   @db.VarChar(255)
-  filas_totales    Int
-  filas_importadas Int
-  filas_fallidas   Int
-  estado           String   @db.VarChar(20)
-
-  // Relaciones
-  usuario Usuario @relation(fields: [usuario_id], references: [id])
-  ventas  Venta[]
-=======
   id               Int       @id @default(autoincrement())
   usuario_id       Int
   fecha            DateTime? @default(now()) @db.Timestamp(6)
@@ -91,9 +52,10 @@ model ImportBatch {
   filas_importadas Int
   filas_fallidas   Int
   estado           String    @db.VarChar(20)
-  usuario          Usuario   @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ventas           Venta[]
->>>>>>> origin/franrama
+
+  // Relaciones
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ventas  Venta[]
 
   @@map("import_batches")
 }
@@ -108,50 +70,29 @@ model Venta {
   ticket_num      String?      @unique @db.VarChar(50)
   saldo_pendiente Decimal?     @default(0) @db.Decimal(12, 2)
   batch_id        Int?
-<<<<<<< HEAD
 
   // Relaciones
-  vendedora    Vendedora    @relation(fields: [vendedora_id], references: [id], onDelete: Cascade)
+  vendedora    Vendedora    @relation(fields: [vendedora_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   items        VentaItem[]
   pagos        PagoVenta[]
-  import_batch ImportBatch? @relation(fields: [batch_id], references: [id])
-
-  @@index([vendedora_id])
-=======
-  pagos           PagoVenta[]
-  items           VentaItem[]
-  import_batch    ImportBatch? @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vendedora       Vendedora    @relation(fields: [vendedora_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  import_batch ImportBatch? @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([vendedora_id], map: "idx_ventas_vendedora")
->>>>>>> origin/franrama
   @@map("ventas")
 }
 
 model VentaItem {
-<<<<<<< HEAD
-  id              Int     @id @default(autoincrement())
-  venta_id        Int
-  descripcion     String  @db.Text
-  cantidad        Int
-  precio_unitario Decimal @db.Decimal(12, 2)
-  descuento       Decimal @default(0) @db.Decimal(12, 2)
-
-  // Relaciones
-  venta Venta @relation(fields: [venta_id], references: [id], onDelete: Cascade)
-
-  @@index([venta_id])
-=======
   id              Int      @id @default(autoincrement())
   venta_id        Int
-  descripcion     String
+  descripcion     String   @db.Text
   cantidad        Int
   precio_unitario Decimal  @db.Decimal(12, 2)
   descuento       Decimal? @default(0) @db.Decimal(12, 2)
-  venta           Venta    @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Relaciones
+  venta Venta @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([venta_id], map: "idx_venta_items_venta")
->>>>>>> origin/franrama
   @@map("venta_items")
 }
 
@@ -161,17 +102,11 @@ model PagoVenta {
   metodo_pago String  @db.VarChar(20)
   monto       Decimal @db.Decimal(12, 2)
   referencia  String? @db.VarChar(100)
-<<<<<<< HEAD
 
   // Relaciones
-  venta Venta @relation(fields: [venta_id], references: [id], onDelete: Cascade)
-
-  @@index([venta_id])
-=======
-  venta       Venta   @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  venta Venta @relation(fields: [venta_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([venta_id], map: "idx_pagos_venta_venta")
->>>>>>> origin/franrama
   @@map("pagos_venta")
 }
 
@@ -180,90 +115,51 @@ model Gasto {
   fecha           DateTime @db.Date
   monto           Decimal  @db.Decimal(12, 2)
   categoria       String   @db.VarChar(100)
-<<<<<<< HEAD
   descripcion     String   @db.Text
   comprobante_url String?  @db.Text
   periodo         String   @db.VarChar(7) // YYYY-MM
   creado_por      Int
 
   // Relaciones
-  usuario Usuario @relation(fields: [creado_por], references: [id])
-
-  @@index([periodo])
-=======
-  descripcion     String
-  comprobante_url String?
-  periodo         String   @db.VarChar(7)
-  creado_por      Int
-  usuario         Usuario  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuario Usuario @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([periodo], map: "idx_gastos_periodo")
->>>>>>> origin/franrama
   @@map("gastos")
 }
 
 model Asistencia {
-<<<<<<< HEAD
-  id           Int      @id @default(autoincrement())
-  vendedora_id Int
-  fecha        DateTime @db.Date
-  presente     Boolean
-  motivo       String?  @db.Text
-
-  // Relaciones
-  vendedora Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: Cascade)
-
-  @@index([fecha])
-=======
   id           Int       @id @default(autoincrement())
   vendedora_id Int
   fecha        DateTime  @db.Date
   presente     Boolean
-  motivo       String?
+  motivo       String?   @db.Text
   vendedora    Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([fecha], map: "idx_asistencias_fecha")
->>>>>>> origin/franrama
   @@map("asistencias")
 }
 
 model Liquidacion {
   id                    Int       @id @default(autoincrement())
   vendedora_id          Int
-<<<<<<< HEAD
   periodo               String    @db.VarChar(7) // YYYY-MM
-  sueldo_base           Decimal   @db.Decimal(12, 2)
-  comisiones            Decimal   @db.Decimal(12, 2)
-  presentismo_descuento Decimal   @default(0) @db.Decimal(12, 2)
-  bonos                 Decimal   @default(0) @db.Decimal(12, 2)
-  total_pagar           Decimal   @db.Decimal(12, 2)
-  estado                String    @db.VarChar(20) // 'generada' | 'pagada'
-  generado_por          Int
-  pagado_por            Int?
-  pagado_en             DateTime?
-  creado_en             DateTime  @default(now()) @map("creado_en")
-
-  // Relaciones
-  vendedora          Vendedora @relation(fields: [vendedora_id], references: [id])
-  usuario            Usuario   @relation(fields: [generado_por], references: [id])
-  pagado_por_usuario Usuario?  @relation("LiquidacionPagadoPor", fields: [pagado_por], references: [id])
-
-  @@index([periodo])
-=======
-  periodo               String    @db.VarChar(7)
   sueldo_base           Decimal   @db.Decimal(12, 2)
   comisiones            Decimal   @db.Decimal(12, 2)
   presentismo_descuento Decimal?  @default(0) @db.Decimal(12, 2)
   bonos                 Decimal?  @default(0) @db.Decimal(12, 2)
   total_pagar           Decimal   @db.Decimal(12, 2)
-  estado                String    @db.VarChar(20)
+  estado                String    @db.VarChar(20) // 'generada' | 'pagada'
   generado_por          Int
+  pagado_por            Int?
+  pagado_en             DateTime?
   creado_en             DateTime? @default(now()) @map("creado_en") @db.Timestamp(6)
-  usuario               Usuario   @relation(fields: [generado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vendedora             Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // Relaciones
+  vendedora          Vendedora @relation(fields: [vendedora_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuario            Usuario   @relation(fields: [generado_por], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pagado_por_usuario Usuario?  @relation("LiquidacionPagadoPor", fields: [pagado_por], references: [id])
 
   @@index([periodo], map: "idx_liquidaciones_periodo")
->>>>>>> origin/franrama
   @@map("liquidaciones")
 }
 
@@ -276,13 +172,8 @@ model Auditoria {
   timestamp     DateTime? @default(now()) @db.Timestamp(6)
   datos_antes   Json?
   datos_despues Json?
-<<<<<<< HEAD
-
   // Relaciones
-  usuario Usuario? @relation(fields: [usuario_id], references: [id])
-=======
-  usuario       Usuario?  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
->>>>>>> origin/franrama
+  usuario Usuario? @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("auditoria")
 }

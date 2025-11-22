@@ -1,13 +1,15 @@
 const { PrismaClient } = require("../generated/prisma/index.js");
 const prisma = new PrismaClient();
-import ExcelJS from "exceljs";
+const ExcelJS = require("exceljs");
+
 // ======================================================
 // OBTENER TODOS LOS GASTOS
 // ======================================================
 const obtenerGastos = async (req, res) => {
   try {
     const gastos = await prisma.gasto.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { fecha: "desc" },
+      include: { usuario: { select: { nombre: true } } }
     });
     res.json(gastos);
   } catch (error) {
@@ -21,18 +23,20 @@ const obtenerGastos = async (req, res) => {
 // ======================================================
 const registrarGasto = async (req, res) => {
   try {
-    const { monto, detalle } = req.body;
+    const { monto, detalle, categoria, fecha } = req.body;
 
-    if (!monto || !detalle) {
-      return res
-        .status(400)
-        .json({ error: "Faltan campos obligatorios (monto y detalle)" });
+    if (!monto) {
+      return res.status(400).json({ error: "Faltan campos obligatorios (monto)" });
     }
 
     const nuevoGasto = await prisma.gasto.create({
       data: {
         monto: Number(monto),
-        detalle,
+        descripcion: detalle || "Sin detalle",
+        categoria: categoria || "Adicional",
+        fecha: fecha ? new Date(fecha) : new Date(),
+        periodo: new Date().toISOString().slice(0, 7), // YYYY-MM
+        creado_por: 1 // TODO: Use req.user.id
       },
     });
 
@@ -67,14 +71,17 @@ const eliminarGasto = async (req, res) => {
 const actualizarGasto = async (req, res) => {
   try {
     const { id } = req.params;
-    const { monto, detalle } = req.body;
+    const { monto, detalle, categoria, fecha } = req.body;
+
+    const data = {};
+    if (monto !== undefined) data.monto = Number(monto);
+    if (detalle !== undefined) data.descripcion = detalle;
+    if (categoria !== undefined) data.categoria = categoria;
+    if (fecha !== undefined) data.fecha = new Date(fecha);
 
     const gastoActualizado = await prisma.gasto.update({
       where: { id: Number(id) },
-      data: {
-        monto: monto ? Number(monto) : undefined,
-        detalle: detalle || undefined,
-      },
+      data,
     });
 
     res.json(gastoActualizado);
@@ -85,17 +92,82 @@ const actualizarGasto = async (req, res) => {
 };
 
 // ======================================================
-// EXPORTAR TODAS LAS FUNCIONES
+// MÉTODOS DE DIEGO (HEAD)
 // ======================================================
-module.exports = {
-  obtenerGastos,
-  registrarGasto,
-  eliminarGasto,
-  actualizarGasto,
+
+const getGastosHoy = async (req, res) => {
+  try {
+    const inicio = new Date();
+    inicio.setHours(0, 0, 0, 0);
+    const fin = new Date();
+    fin.setHours(23, 59, 59, 999);
+
+    const gastos = await prisma.gasto.findMany({
+      where: {
+        fecha: { gte: inicio, lte: fin }
+      },
+      orderBy: { fecha: 'desc' },
+      include: { usuario: { select: { nombre: true } } }
+    });
+
+    // Calcular total
+    const total = gastos.reduce((acc, g) => acc + Number(g.monto), 0);
+
+    res.json({ gastosHoy: gastos, totalHoy: total });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Error al obtener gastos de hoy' });
+  }
 };
 
+const getGastosPorRango = async (req, res) => {
+  try {
+    const dias = Number(req.query.dias) || 0;
+    const fechaLimite = new Date();
+    fechaLimite.setDate(fechaLimite.getDate() - dias);
+    fechaLimite.setHours(0, 0, 0, 0);
 
-export const exportarExcelGastos = async (req, res) => {
+    const gastos = await prisma.gasto.findMany({
+      where: {
+        fecha: { gte: fechaLimite }
+      },
+      orderBy: { fecha: 'desc' },
+      include: { usuario: { select: { nombre: true } } }
+    });
+
+    const total = gastos.reduce((acc, g) => acc + Number(g.monto), 0);
+    res.json({ gastos, total });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Error al obtener gastos por rango' });
+  }
+};
+
+const createGastos = async (req, res) => {
+  return registrarGasto(req, res);
+};
+
+const reiniciarGastosHoy = async (req, res) => {
+  try {
+    const inicio = new Date();
+    inicio.setHours(0, 0, 0, 0);
+    const fin = new Date();
+    fin.setHours(23, 59, 59, 999);
+
+    await prisma.gasto.deleteMany({
+      where: {
+        fecha: { gte: inicio, lte: fin }
+      }
+    });
+
+    res.json({ mensaje: 'Gastos de hoy reiniciados' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Error al reiniciar gastos' });
+  }
+};
+
+const exportarExcelGastos = async (req, res) => {
   try {
     const gastos = await prisma.gasto.findMany({
       include: {
@@ -143,4 +215,16 @@ export const exportarExcelGastos = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Error al exportar Excel" });
   }
+};
+
+module.exports = {
+  obtenerGastos,
+  registrarGasto,
+  eliminarGasto,
+  actualizarGasto,
+  getGastosHoy,
+  getGastosPorRango,
+  createGastos,
+  reiniciarGastosHoy,
+  exportarExcelGastos
 };

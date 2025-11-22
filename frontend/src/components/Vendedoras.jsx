@@ -93,12 +93,7 @@ export function Vendedoras() {
 
   async function guardar(e) {
     e.preventDefault()
-<<<<<<< HEAD
     // Validaciones en frontend con mensajes claros
-=======
-    if (!nombre.trim()) return alert("Nombre obligatorio")
-
->>>>>>> origin/franrama
     const payload = {
       nombre: nombre.trim(),
       codigo: codigo.trim() || undefined,
@@ -194,14 +189,14 @@ export function Vendedoras() {
                   <td style={{ padding: "14px" }}>{Number(v.porcentaje_comision).toFixed(2)}%</td>
 
                   <td style={{ padding: "14px", textAlign: "center" }}>
-                    <button 
-                      onClick={() => iniciarEdicion(v)} 
+                    <button
+                      onClick={() => iniciarEdicion(v)}
                       style={{ ...buttonPrimary, padding: "8px 12px", fontSize: "13px" }}>
                       Editar
                     </button>
 
-                    <button 
-                      onClick={() => eliminar(v.id)} 
+                    <button
+                      onClick={() => eliminar(v.id)}
                       style={{ ...buttonDanger, padding: "8px 12px", fontSize: "13px", marginLeft: "10px" }}>
                       Eliminar
                     </button>
