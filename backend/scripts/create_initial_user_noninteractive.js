@@ -14,9 +14,9 @@ const prisma = require('../src/prismaClient');
 const bcrypt = require('bcrypt');
 
 async function crearUsuario() {
-  const nombre = process.env.ADMIN_NAME || 'Admin';
-  const email = process.env.ADMIN_EMAIL || 'admin@local';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const nombre = process.env.ADMIN_NAME || 'Diego';
+  const email = process.env.ADMIN_EMAIL || 'diego@gmail.com';
+  const password = process.env.ADMIN_PASSWORD || '123456';
 
   try {
     // Verificar existencia

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
 import { validarLoginFrontend } from '../utils/validators';
+// Importamos el CSS (te lo paso abajo para que se vea lindo)
+import './Css/Login.css'; 
 
 export default function Login({ onLoginExitoso }) {
   const [email, setEmail] = useState('');
@@ -8,27 +10,42 @@ export default function Login({ onLoginExitoso }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Maneja el submit del formulario de login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    // Validación básica en frontend para mejorar UX
+
+    // Validación frontend
     const check = validarLoginFrontend({ email, password });
     if (!check.valid) {
       setError(check.errors.join('; '));
       setLoading(false);
       return;
     }
+
     try {
       const respuesta = await api.post('/auth/login', { email, password });
+      
+      // Desestructuramos la respuesta
       const { token, usuario } = respuesta.data;
-      // Guardar token en localStorage y notificar al padre
+
+      // 1. Guardar token
       localStorage.setItem('token', token);
-      if (typeof onLoginExitoso === 'function') onLoginExitoso(usuario);
+
+      // 2. --- CORRECCIÓN AQUÍ ---
+      // Guardamos el objeto usuario completo (para leer nombre e inicial en el Dash)
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+
+      // 3. Notificar al padre (App.jsx) para que cambie la pantalla
+      if (typeof onLoginExitoso === 'function') {
+        onLoginExitoso(usuario);
+      } else {
+        // Fallback si no hay función: recargar la página para ir al Home
+        window.location.href = '/';
+      }
+
     } catch (err) {
       console.error('Error en login:', err);
-      // Si el backend devuelve 401 o mensaje claro, mostramos mensaje al usuario
       const mensaje = err?.response?.data?.error || 'Error iniciando sesión. Revisa tus credenciales.';
       setError(mensaje);
     } finally {
@@ -38,32 +55,47 @@ export default function Login({ onLoginExitoso }) {
 
   return (
     <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Iniciar sesión</h2>
-        {error && <div className="login-error">{error}</div>}
+      <div className="login-card">
+        <div className="login-header">
+          {/* Puedes poner aquí tu logo si quieres */}
+          <h2>Bienvenido a Rendix</h2>
+          <p>Inicia sesión para gestionar tu negocio</p>
+        </div>
 
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form className="login-form" onSubmit={handleSubmit}>
+          {error && <div className="login-error">{error}</div>}
 
-        <label htmlFor="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <div className="form-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              className="input-control"
+              placeholder="ejemplo@rendix.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? 'Ingresando...' : 'Ingresar'}
-        </button>
-      </form>
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              className="input-control"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-primary btn-block" disabled={loading}>
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

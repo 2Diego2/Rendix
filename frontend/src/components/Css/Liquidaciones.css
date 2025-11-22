@@ -1,0 +1,245 @@
+
+/* Variables locales para este módulo */
+.liquidaciones-container {
+  --liq-primary: #0f172a;
+  --liq-accent: #0088FE;
+  --liq-bg-card: #ffffff;
+  --liq-border: #e2e8f0;
+  --liq-text: #334155;
+  --liq-text-light: #64748b;
+  --liq-radius: 8px;
+  --liq-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  
+  /* Colores de estado financiero */
+  --liq-success-bg: #dcfce7;
+  --liq-success-text: #166534;
+  --liq-warning-bg: #fff7ed;
+  --liq-warning-text: #9a3412;
+  
+  padding: 24px;
+  max-width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--liq-text);
+}
+
+/* Header de la página */
+.liquidaciones-container .page-header {
+  margin-bottom: 24px;
+}
+
+.liquidaciones-container .page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--liq-primary);
+  margin: 0 0 8px 0;
+}
+
+/* Panel de Control (Filtros y Acciones) */
+.liquidaciones-container .control-panel {
+  background: var(--liq-bg-card);
+  border: 1px solid var(--liq-border);
+  border-radius: var(--liq-radius);
+  padding: 20px;
+  box-shadow: var(--liq-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.liquidaciones-container .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.liquidaciones-container .control-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--liq-text-light);
+}
+
+.liquidaciones-container .input-control {
+  padding: 8px 12px;
+  border: 1px solid var(--liq-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 140px;
+}
+
+.liquidaciones-container .input-control:focus {
+  border-color: var(--liq-accent);
+  box-shadow: 0 0 0 3px rgba(0, 136, 254, 0.1);
+}
+
+.liquidaciones-container .select-control {
+  padding: 8px 32px 8px 12px; /* Espacio para la flecha */
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Botones */
+.liquidaciones-container .btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.liquidaciones-container .btn {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.liquidaciones-container .btn:active {
+  transform: translateY(1px);
+}
+
+.liquidaciones-container .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.liquidaciones-container .btn-primary {
+  background-color: var(--liq-primary);
+  color: white;
+}
+
+.liquidaciones-container .btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--liq-border);
+  color: var(--liq-text);
+}
+
+.liquidaciones-container .btn-outline:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.liquidaciones-container .btn-action-pay {
+  background-color: var(--liq-success-bg);
+  color: var(--liq-success-text);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.liquidaciones-container .btn-action-pay:hover {
+  filter: brightness(0.95);
+}
+
+/* Notas informativas */
+.liquidaciones-container .info-note {
+  background-color: #eff6ff;
+  border-left: 4px solid var(--liq-accent);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Área de Resultados JSON (Debug) */
+.liquidaciones-container .debug-area {
+  background: #f8fafc;
+  border: 1px solid var(--liq-border);
+  border-radius: var(--liq-radius);
+  padding: 12px;
+  margin-bottom: 24px;
+  font-size: 0.8rem;
+}
+
+.liquidaciones-container .debug-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--liq-text-light);
+}
+
+/* Tabla Financiera */
+.liquidaciones-container .table-wrapper {
+  background: var(--liq-bg-card);
+  border: 1px solid var(--liq-border);
+  border-radius: var(--liq-radius);
+  overflow-x: auto; /* Scroll horizontal si es necesario */
+  box-shadow: var(--liq-shadow);
+}
+
+.liquidaciones-container .table-header-title {
+  padding: 16px 20px;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--liq-border);
+}
+
+.liquidaciones-container .financial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  white-space: nowrap; /* Evita que los montos se rompan en dos líneas */
+}
+
+.liquidaciones-container .financial-table th {
+  background-color: #f8fafc;
+  color: var(--liq-text-light);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--liq-border);
+}
+
+.liquidaciones-container .financial-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--liq-border);
+  color: var(--liq-text);
+}
+
+/* Alineación numérica para columnas de dinero */
+.liquidaciones-container .text-right {
+  text-align: right;
+  font-feature-settings: "tnum"; /* Números tabulares para mejor alineación */
+}
+
+/* Estilos específicos para columna Total */
+.liquidaciones-container .col-total {
+  font-weight: 700;
+  color: var(--liq-primary);
+}
+
+/* Badges de Estado */
+.liquidaciones-container .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.liquidaciones-container .status-pagada {
+  background-color: var(--liq-success-bg);
+  color: var(--liq-success-text);
+}
+
+.liquidaciones-container .status-generada {
+  background-color: var(--liq-warning-bg);
+  color: var(--liq-warning-text);
+}
+
+.liquidaciones-container .empty-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--liq-text-light);
+  font-style: italic;
+}

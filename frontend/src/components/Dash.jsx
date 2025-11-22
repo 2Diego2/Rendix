@@ -35,6 +35,30 @@ export function DashboardContent() {
   const [gastosPieData, setGastosPieData] = useState([]);
   const [ultimosGastos, setUltimosGastos] = useState([]);
 
+// Estado para el Usuario ---
+  const [usuario, setUsuario] = useState({ nombre: 'Usuario' });
+
+  // Cargar usuario del localStorage al montar ---
+  useEffect(() => {
+    try {
+      const userStored = localStorage.getItem('usuario');
+      if (userStored) {
+        setUsuario(JSON.parse(userStored));
+      }
+    } catch (e) {
+      console.error("Error al leer usuario", e);
+    }
+  }, []);
+
+  // Función Cerrar Sesión
+  const handleLogout = () => {
+    if (confirm("¿Estás seguro de que quieres cerrar sesión?")) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '/login'; // Redirige forzadamente
+    }
+  };
+
   // Función para mostrar el texto del filtro actual
   const getPeriodoLabel = (dias) => {
     if (dias === 0) return "Hoy";
@@ -158,9 +182,77 @@ export function DashboardContent() {
 
   if (loading) return <div className="dashboard-content">Cargando datos del dashboard...</div>;
 
-  return (
+ return (
     <div className="dashboard-content" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       
+      {/* --- NUEVO: HEADER CON USUARIO Y LOGOUT --- */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        background: '#fff',
+        padding: '15px 20px',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        border: '1px solid #e2e8f0'
+      }}>
+        <div>
+           <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>Resumen General</h2>
+           <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Vista de {periodoLabel.toLowerCase()}</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+           {/* Información del Usuario */}
+           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                 width: '36px', 
+                 height: '36px', 
+                 borderRadius: '50%', 
+                 backgroundColor: '#0f172a', 
+                 color: 'white', 
+                 display: 'flex', 
+                 justifyContent: 'center', 
+                 alignItems: 'center',
+                 fontWeight: 'bold',
+                 fontSize: '14px'
+              }}>
+                 {/* Inicial del nombre */}
+                 {usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                 <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>
+                    {usuario.nombre}
+                 </span>
+                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                    {usuario.rol || 'Usuario'}
+                 </span>
+              </div>
+           </div>
+
+           {/* Separador vertical */}
+           <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
+
+           {/* Botón Cerrar Sesión */}
+           <button 
+             onClick={handleLogout}
+             style={{
+               padding: '8px 16px',
+               backgroundColor: '#fee2e2',
+               color: '#991b1b',
+               border: '1px solid #fecaca',
+               borderRadius: '6px',
+               cursor: 'pointer',
+               fontSize: '0.85rem',
+               fontWeight: 600,
+               transition: 'all 0.2s'
+             }}
+             onMouseOver={(e) => e.target.style.backgroundColor = '#fecaca'}
+             onMouseOut={(e) => e.target.style.backgroundColor = '#fee2e2'}
+           >
+             Cerrar Sesión
+           </button>
+        </div>
+      </div>
       {/* --- SECCIÓN 1: KPIs (Tarjetas de Resumen) --- */}
       <div
         className="stats-grid"
