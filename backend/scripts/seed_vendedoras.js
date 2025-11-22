@@ -2,7 +2,8 @@
  * Script para crear vendedoras de prueba (no-destructivo).
  * Ejecutar: node scripts/seed_vendedoras.js
  */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const prisma = require('../src/prismaClient');
 
 async function seed() {

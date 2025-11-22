@@ -3,7 +3,8 @@
  * para verificar que la autenticación (Prisma + bcrypt + JWT)
  * funciona sin necesidad de hacer una petición HTTP.
  */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const authService = require('../src/services/authService');
 
 async function test() {

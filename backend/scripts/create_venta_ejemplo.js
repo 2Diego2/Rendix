@@ -2,7 +2,8 @@
  * Script para crear una venta de ejemplo usando el servicio directamente.
  * Ejecutar desde la carpeta `backend`: node scripts/create_venta_ejemplo.js
  */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const ventasService = require('../src/services/ventasService');
 const prisma = require('../src/prismaClient');
 

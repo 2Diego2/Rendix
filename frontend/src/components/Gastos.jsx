@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import api from '../utils/api';
 import { validarGastoFrontend } from '../utils/validators';
+import { NotificationContainer } from './Notification';
 
 export function Gastos() {
   const [gastos, setGastos] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   // Formulario para nuevo gasto
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -11,12 +13,42 @@ export function Gastos() {
   const [nuevoMonto, setNuevoMonto] = useState('');
   const [nuevaCategoria, setNuevaCategoria] = useState('Adicional');
 
-  // Cargar gastos al montar
+  // Filtros de fecha
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+
+  // Función para agregar notificaciones (siempre 3 segundos)
+  const addNotification = (message, type = 'success') => {
+    const id = Date.now() + Math.random();
+    setNotifications(prev => [...prev, { id, message, type, duration: 3000 }]);
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  // Cargar gastos al montar o cuando cambien los filtros
   useEffect(() => {
-    api.get('/gastos/hoy')
-      .then(res => setGastos(res.data.gastosHoy || []))
-      .catch(() => console.log("No se pudieron cargar los gastos."));
-  }, []);
+    cargarGastos();
+  }, [fechaInicio, fechaFin]);
+
+  const cargarGastos = async () => {
+    try {
+      let endpoint = '/gastos/hoy';
+      if (fechaInicio || fechaFin) {
+        endpoint = '/gastos/rango';
+        const params = new URLSearchParams();
+        if (fechaInicio) params.append('fechaInicio', fechaInicio);
+        if (fechaFin) params.append('fechaFin', fechaFin);
+        endpoint += '?' + params.toString();
+      }
+      
+      const res = await api.get(endpoint);
+      setGastos(res.data.gastosHoy || res.data.gastos || []);
+    } catch (err) {
+      console.log("No se pudieron cargar los gastos.");
+    }
+  };
 
   // Crear un nuevo gasto
   const handleCrearGasto = (e) => {
@@ -26,13 +58,11 @@ export function Gastos() {
     api.post('/gastos', {
       monto: Number(nuevoMonto),
       detalle: nuevaDescripcion || nuevoNombre || "Sin detalle",
+      categoria: nuevaCategoria || "Adicional",
     })
-      .then(() => {
-        // Volver a cargar los gastos del día después de crear uno nuevo
-        return api.get('/gastos/hoy');
-      })
-      .then(res => {
-        setGastos(res.data.gastosHoy || []);
+      .then(async () => {
+        // Volver a cargar los gastos después de crear uno nuevo
+        await cargarGastos();
         setNuevoNombre('');
         setNuevaDescripcion('');
         setNuevoMonto('');
@@ -75,21 +105,93 @@ export function Gastos() {
       });
   };
 
-  const descargarExcel = () => {
-    fetch("http://localhost:3001/gastos/exportar/excel")
-      .then(res => res.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "gastos.xlsx";
-        a.click();
-        URL.revokeObjectURL(url);
-      });
+  const descargarExcel = async () => {
+    try {
+      let url = "http://localhost:3001/gastos/exportar/excel";
+      const params = new URLSearchParams();
+      if (fechaInicio) params.append('fechaInicio', fechaInicio);
+      if (fechaFin) params.append('fechaFin', fechaFin);
+      if (params.toString()) url += '?' + params.toString();
+
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error('Error al exportar archivo');
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = "gastos.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      addNotification("Éxito al exportar archivo", "success");
+    } catch (err) {
+      console.error('Error al exportar:', err);
+      addNotification("Error al exportar archivo", "error");
+    }
   };
 
   return (
     <div className="dashboard-content">
+      <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
+
+      {/* Filtros de fecha */}
+      <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
+        <h3 style={{ marginBottom: "12px" }}>Filtros de fecha</h3>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <input
+            type="date"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid var(--border)",
+            }}
+            placeholder="Fecha inicio"
+          />
+          <input
+            type="date"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid var(--border)",
+            }}
+            placeholder="Fecha fin"
+          />
+          <button
+            onClick={() => {
+              setFechaInicio('');
+              setFechaFin('');
+            }}
+            style={{
+              padding: "8px 14px",
+              backgroundColor: "#6b7280",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
 
       {/* Formulario para crear gasto */}
       <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
@@ -185,7 +287,7 @@ export function Gastos() {
             onClick={descargarExcel}
             style={{
               padding: "8px 14px",
-              backgroundColor: "#16A34A", // verde éxito
+              backgroundColor: "#16A34A",
               color: "white",
               border: "none",
               borderRadius: "6px",

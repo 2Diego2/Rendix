@@ -9,7 +9,8 @@
  *  node scripts/create_initial_user_noninteractive.js
  *
  */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const prisma = require('../src/prismaClient');
 const bcrypt = require('bcrypt');
 

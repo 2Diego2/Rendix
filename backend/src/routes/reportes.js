@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const prisma = require("../prismaClient");
+const { agregarReporte, obtenerReportes, eliminarReporte } = require("../utils/reportesStorage");
 
 // GET: obtener todos los reportes
-router.get("/", async (req, res) => {
+router.get("/", (req, res) => {
   try {
-    const reportes = await prisma.reporte.findMany({
-      orderBy: { fechaCreacion: "desc" }
-    });
+    const reportes = obtenerReportes();
     res.json(reportes);
   } catch (err) {
     console.error(err);
@@ -15,16 +13,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST: crear un reporte
-router.post("/", async (req, res) => {
-  const { nombre, tipo, tamaño } = req.body;
+// POST: crear un reporte (mantenido para compatibilidad, pero ahora se crea automáticamente al exportar)
+router.post("/", (req, res) => {
+  const { nombre, tipo, tamaño, filtros } = req.body;
   if (!nombre || !tipo || !tamaño)
     return res.status(400).json({ error: "Faltan datos" });
 
   try {
-    const nuevoReporte = await prisma.reporte.create({
-      data: { nombre, tipo, tamaño }
-    });
+    const nuevoReporte = agregarReporte(nombre, tipo, tamaño, filtros || {});
     res.status(201).json(nuevoReporte);
   } catch (err) {
     console.error(err);
@@ -33,11 +29,15 @@ router.post("/", async (req, res) => {
 });
 
 // DELETE: eliminar un reporte
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", (req, res) => {
   const { id } = req.params;
   try {
-    await prisma.reporte.delete({ where: { id: parseInt(id) } });
-    res.json({ mensaje: "Reporte eliminado" });
+    const eliminado = eliminarReporte(id);
+    if (eliminado) {
+      res.json({ mensaje: "Reporte eliminado" });
+    } else {
+      res.status(404).json({ error: "Reporte no encontrado" });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al eliminar reporte" });

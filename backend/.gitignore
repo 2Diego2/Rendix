@@ -5,6 +5,7 @@ node_modules
 /src/generated/prisma
 /ventas_data
 /gastos_data
+/data
 
 /backend/prisma/schema.prisma
 /TAREAS_DIVIDIDAS.md

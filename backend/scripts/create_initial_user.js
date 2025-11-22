@@ -3,7 +3,8 @@
  * Uso: desde la carpeta backend ejecutar `node scripts/create_initial_user.js`  fran@arr.ar --- 12345
  * Asegúrate de tener las variables de entorno configuradas en `.env`.
  */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const prisma = require('../src/prismaClient');
 const bcrypt = require('bcrypt');
 const readline = require('readline');

@@ -110,15 +110,15 @@ export default function Asistencias() {
 
       {/* Card de Tabla */}
       <div className="card-box" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
            <h4 className="card-header-title" style={{ margin: 0 }}>Registros ({registros.length})</h4>
         </div>
         
         {loading ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Cargando...</div>
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--muted-foreground)' }}>Cargando...</div>
         ) : (
           registros.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>No hay registros para esta fecha.</div>
+            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>No hay registros para esta fecha.</div>
           ) : (
             <table className="data-table">
               <thead>
@@ -148,7 +148,7 @@ export default function Asistencias() {
                         {r.presente ? 'Presente' : 'Ausente'}
                       </span>
                     </td>
-                    <td style={{ color: r.motivo ? 'inherit' : '#94a3b8' }}>
+                    <td style={{ color: r.motivo ? 'var(--foreground)' : 'var(--muted-foreground)' }}>
                       {r.motivo || '—'}
                     </td>
                   </tr>

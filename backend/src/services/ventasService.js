@@ -15,16 +15,42 @@ async function getVentasHoy() {
 
 /**
  * Obtiene ventas en los últimos `dias` días (incluye hoy)
+ * O si se proporcionan fechaInicio y fechaFin, usa esas fechas
  */
-async function getVentasPorRango(dias = 30) {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const inicio = new Date(hoy);
-  inicio.setDate(hoy.getDate() - (dias - 1));
-  const manana = new Date(hoy);
-  manana.setDate(hoy.getDate() + 1);
+async function getVentasPorRango(dias = 30, fechaInicio = null, fechaFin = null) {
+  let inicio, fin;
+  
+  if (fechaInicio || fechaFin) {
+    // Usar fechas específicas
+    if (fechaInicio) {
+      inicio = new Date(fechaInicio);
+      inicio.setHours(0, 0, 0, 0);
+    } else {
+      // Si no hay fecha inicio, usar hace 30 días
+      inicio = new Date();
+      inicio.setDate(inicio.getDate() - 30);
+      inicio.setHours(0, 0, 0, 0);
+    }
+    
+    if (fechaFin) {
+      fin = new Date(fechaFin);
+      fin.setHours(23, 59, 59, 999);
+    } else {
+      // Si no hay fecha fin, usar hoy
+      fin = new Date();
+      fin.setHours(23, 59, 59, 999);
+    }
+  } else {
+    // Usar días (comportamiento original)
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    inicio = new Date(hoy);
+    inicio.setDate(hoy.getDate() - (dias - 1));
+    fin = new Date(hoy);
+    fin.setDate(hoy.getDate() + 1);
+  }
 
-  const ventas = await ventasRepo.findVentasPorRango(inicio, manana);
+  const ventas = await ventasRepo.findVentasPorRango(inicio, fin);
   const total = ventas.reduce((acc, v) => acc + Number(v.total), 0);
   return { ventas, totalHoy: total, cantidadHoy: ventas.length };
 }

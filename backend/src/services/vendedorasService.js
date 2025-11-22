@@ -76,6 +76,15 @@ async function updateVendedora(id, data) {
 }
 
 async function deleteVendedora(id) {
+  // Verificar primero si tiene ventas en el mes corriente
+  const ventasMesCorriente = await vendedorasRepo.countVentasMesCorriente(id);
+  if (ventasMesCorriente > 0) {
+    const err = new Error('Esta vendedora no puede ser eliminada porque tiene una venta registrada en el corriente mes');
+    err.status = 400;
+    err.code = 'VENTAS_MES_CORRIENTE';
+    throw err;
+  }
+
   // Obtener conteos de registros asociados (ventas, asistencias, liquidaciones)
   const [ventas, asistencias, liquidaciones] = await Promise.all([
     vendedorasRepo.countVentasByVendedora(id),

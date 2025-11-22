@@ -13,8 +13,11 @@ async function getVentasHoy(req, res) {
 
 async function getVentasPorRango(req, res) {
   try {
-    const dias = parseInt(req.query.dias) || 30;
-    const result = await ventasService.getVentasPorRango(dias);
+    const { dias, fechaInicio, fechaFin } = req.query;
+    
+    // Si se proporcionan fechas específicas, usarlas; si no, usar dias
+    const diasNum = fechaInicio || fechaFin ? null : (parseInt(dias) || 30);
+    const result = await ventasService.getVentasPorRango(diasNum, fechaInicio || null, fechaFin || null);
     res.json({ ventasHoy: result.ventas, totalHoy: result.totalHoy, cantidadHoy: result.cantidadHoy });
   } catch (e) {
     console.error('Error getVentasPorRango:', e);

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import api from '../utils/api'
 import { validarVendedoraFrontend } from '../utils/validators'
 
-// Estilos generales tipo dashboard
+// Estilos generales tipo dashboard - usando variables CSS para dark theme
 const card = {
-  background: "white",
+  background: "var(--card)",
   padding: "20px",
   borderRadius: "12px",
   boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
@@ -15,10 +15,12 @@ const card = {
 const inputStyle = {
   padding: "12px 14px",
   borderRadius: "8px",
-  border: "1px solid #d1d5db",
+  border: "1px solid var(--border)",
   outline: "none",
   fontSize: "14px",
   width: "100%",
+  background: "var(--card)",
+  color: "var(--foreground)",
 }
 
 const buttonPrimary = {
@@ -123,15 +125,21 @@ export function Vendedoras() {
     try {
       await api.delete(`/vendedoras/${id}`)
       cargarVendedoras()
-    } catch {
-      alert("Error al eliminar")
+    } catch (err) {
+      const mensaje = err.response?.data?.error || "Error al eliminar"
+      // Si el error es específico de ventas del mes corriente, mostrar mensaje personalizado
+      if (err.response?.status === 400 && mensaje.includes('corriente mes')) {
+        alert("Esta vendedora no puede ser eliminada porque tiene una venta registrada en el corriente mes")
+      } else {
+        alert(mensaje)
+      }
     }
   }
 
   return (
     <div style={{ width: "100%", padding: "0 20px" }}>
 
-      <h2 style={{ marginBottom: "20px" }}>Gestión de Vendedoras</h2>
+      <h2 style={{ marginBottom: "20px", color: "var(--foreground)" }}>Gestión de Vendedoras</h2>
 
       {/* FORMULARIO FULL WIDTH */}
       <div style={card}>
@@ -171,22 +179,22 @@ export function Vendedoras() {
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f3f4f6" }}>
-                <th style={{ padding: "14px", textAlign: "left" }}>Nombre</th>
-                <th style={{ padding: "14px", textAlign: "left" }}>Código</th>
-                <th style={{ padding: "14px", textAlign: "left" }}>Sueldo base</th>
-                <th style={{ padding: "14px", textAlign: "left" }}>% Comisión</th>
-                <th style={{ padding: "14px", textAlign: "center" }}>Acciones</th>
+              <tr style={{ background: "var(--muted)" }}>
+                <th style={{ padding: "14px", textAlign: "left", color: "var(--foreground)" }}>Nombre</th>
+                <th style={{ padding: "14px", textAlign: "left", color: "var(--foreground)" }}>Código</th>
+                <th style={{ padding: "14px", textAlign: "left", color: "var(--foreground)" }}>Sueldo base</th>
+                <th style={{ padding: "14px", textAlign: "left", color: "var(--foreground)" }}>% Comisión</th>
+                <th style={{ padding: "14px", textAlign: "center", color: "var(--foreground)" }}>Acciones</th>
               </tr>
             </thead>
 
             <tbody>
               {vendedoras.map(v => (
-                <tr key={v.id} style={{ borderBottom: "1px solid #e5e7eb" }}>
-                  <td style={{ padding: "14px" }}>{v.nombre}</td>
-                  <td style={{ padding: "14px" }}>{v.codigo}</td>
-                  <td style={{ padding: "14px" }}>${Number(v.sueldo_base).toFixed(2)}</td>
-                  <td style={{ padding: "14px" }}>{Number(v.porcentaje_comision).toFixed(2)}%</td>
+                <tr key={v.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "14px", color: "var(--foreground)" }}>{v.nombre}</td>
+                  <td style={{ padding: "14px", color: "var(--foreground)" }}>{v.codigo}</td>
+                  <td style={{ padding: "14px", color: "var(--foreground)" }}>${Number(v.sueldo_base).toFixed(2)}</td>
+                  <td style={{ padding: "14px", color: "var(--foreground)" }}>{Number(v.porcentaje_comision).toFixed(2)}%</td>
 
                   <td style={{ padding: "14px", textAlign: "center" }}>
                     <button

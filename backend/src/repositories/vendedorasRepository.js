@@ -37,6 +37,23 @@ async function countLiquidacionesByVendedora(id) {
   return prisma.liquidacion.count({ where: { vendedora_id: Number(id) } });
 }
 
+// utilidad: contar ventas de una vendedora en el mes corriente
+async function countVentasMesCorriente(id) {
+  const ahora = new Date();
+  const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+  const finMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0, 23, 59, 59, 999);
+  
+  return prisma.venta.count({
+    where: {
+      vendedora_id: Number(id),
+      fecha: {
+        gte: inicioMes,
+        lte: finMes
+      }
+    }
+  });
+}
+
 module.exports = {
   findAll,
   findById,
@@ -46,4 +63,5 @@ module.exports = {
   countVentasByVendedora,
   countAsistenciasByVendedora,
   countLiquidacionesByVendedora,
+  countVentasMesCorriente,
 };

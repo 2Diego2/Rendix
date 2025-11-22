@@ -31,13 +31,15 @@ const ventaItemSchema = Joi.object({
 });
 
 // Esquema para gasto
+// Nota: fecha, periodo y creado_por son opcionales porque se generan automáticamente si no se proporcionan
 const gastoSchema = Joi.object({
-  fecha: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
+  fecha: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).optional(),
   monto: Joi.number().precision(2).min(0).required(),
-  categoria: Joi.string().max(100).required(),
+  categoria: Joi.string().max(100).optional().default('Adicional'),
   descripcion: Joi.string().allow('', null).optional(),
-  periodo: Joi.string().pattern(/^\d{4}-\d{2}$/).required(),
-  creado_por: Joi.number().integer().positive().required(),
+  detalle: Joi.string().allow('', null).optional(), // Alias para descripcion (compatibilidad)
+  periodo: Joi.string().pattern(/^\d{4}-\d{2}$/).optional(),
+  creado_por: Joi.number().integer().positive().optional(),
 });
 
 // Esquema para vendedora (create/update)

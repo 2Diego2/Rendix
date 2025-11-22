@@ -84,8 +84,8 @@ export function DashboardContent() {
         // --- 1. Procesar KPIs ---
         const totalVentas = dataVentas.totalHoy || 0;
         const cantVentas = dataVentas.cantidadHoy || 0;
-        const totalGastos = dataGastos.totalHoy || 0;
-        const cantGastos = dataGastos.cantidadHoy || 0;
+        const totalGastos = dataGastos.totalHoy || dataGastos.total || 0;
+        const cantGastos = dataGastos.cantidadHoy || (dataGastos.gastosHoy || dataGastos.gastos || []).length || 0;
 
         setVentas({ total: totalVentas, cantidad: cantVentas });
         setGastos({ total: totalGastos, cantidad: cantGastos });
@@ -102,15 +102,27 @@ export function DashboardContent() {
 
         // (Usamos los arrays '...Hoy' que en realidad contienen todos los datos del rango)
         (dataVentas.ventasHoy || []).forEach(venta => {
-          const fecha = venta.fecha; // Asumimos formato "YYYY-MM-DD"
-          datosAgrupados[fecha] = datosAgrupados[fecha] || { fecha, ventas: 0, gastos: 0 };
-          datosAgrupados[fecha].ventas += venta.totalVenta;
+          // Formatear fecha correctamente (puede venir como Date o string)
+          let fechaStr = venta.fecha;
+          if (fechaStr instanceof Date) {
+            fechaStr = fechaStr.toISOString().split('T')[0];
+          } else if (typeof fechaStr === 'string') {
+            fechaStr = fechaStr.split('T')[0]; // Tomar solo la parte de la fecha
+          }
+          datosAgrupados[fechaStr] = datosAgrupados[fechaStr] || { fecha: fechaStr, ventas: 0, gastos: 0 };
+          datosAgrupados[fechaStr].ventas += Number(venta.total || 0);
         });
 
-        (dataGastos.gastosHoy || []).forEach(gasto => {
-          const fecha = gasto.fecha;
-          datosAgrupados[fecha] = datosAgrupados[fecha] || { fecha, ventas: 0, gastos: 0 };
-          datosAgrupados[fecha].gastos += gasto.monto;
+        (dataGastos.gastosHoy || dataGastos.gastos || []).forEach(gasto => {
+          // Formatear fecha correctamente
+          let fechaStr = gasto.fecha;
+          if (fechaStr instanceof Date) {
+            fechaStr = fechaStr.toISOString().split('T')[0];
+          } else if (typeof fechaStr === 'string') {
+            fechaStr = fechaStr.split('T')[0];
+          }
+          datosAgrupados[fechaStr] = datosAgrupados[fechaStr] || { fecha: fechaStr, ventas: 0, gastos: 0 };
+          datosAgrupados[fechaStr].gastos += Number(gasto.monto || 0);
         });
 
         // Convertimos el objeto a array y lo ordenamos por fecha
@@ -121,9 +133,9 @@ export function DashboardContent() {
 
         // --- 3. Procesar Datos para Gráfico de Torta (Gastos por Categoría) ---
         const gastosPorCategoria = {};
-        (dataGastos.gastosHoy || []).forEach(gasto => {
+        (dataGastos.gastosHoy || dataGastos.gastos || []).forEach(gasto => {
           const cat = gasto.categoria || "Sin Categoría";
-          gastosPorCategoria[cat] = (gastosPorCategoria[cat] || 0) + gasto.monto;
+          gastosPorCategoria[cat] = (gastosPorCategoria[cat] || 0) + Number(gasto.monto || 0);
         });
 
         const processedPieData = Object.keys(gastosPorCategoria).map(name => ({
@@ -133,7 +145,7 @@ export function DashboardContent() {
         setGastosPieData(processedPieData);
 
         // --- 4. Obtener Últimos Gastos ---
-        setUltimosGastos((dataGastos.gastosHoy || []).slice(-5).reverse());
+        setUltimosGastos((dataGastos.gastosHoy || dataGastos.gastos || []).slice(-5).reverse());
 
 
       } catch (err) {
