@@ -1,9 +1,72 @@
-
-
 --diego
 
 
 ### 5.4 VALIDACIONES Y MANEJO DE ERRORES
+
+#### TAREA-5.4.1: Implementar Validación de Esquemas
+- Instalar librería de validación (Joi o Zod)
+- Crear archivo `utils/validators.js` con esquemas de validación
+- Definir esquemas para: venta, gasto, vendedora, liquidación, asistencia, pago
+- Validar tipos de datos, rangos, formatos (email, fechas, etc.)
+
+#### TAREA-5.4.2: Crear Middleware de Validación
+- Crear middleware `middlewares/validationMiddleware.js`
+- Aplicar validación automática a rutas usando esquemas
+- Retornar errores de validación en formato consistente
+- Integrar con controladores existentes
+
+#### TAREA-5.4.3: Implementar Manejo Centralizado de Errores
+- Crear archivo `middlewares/errorHandler.js`
+- Implementar middleware de manejo de errores global
+- Capturar errores de Prisma, validación, negocio
+- Formatear respuestas de error consistentes
+- Registrar errores en logs
+- Aplicar middleware en app.js
+
+#### TAREA-5.4.4: Mejorar Validaciones en Frontend
+- Agregar validaciones en formularios del frontend
+- Validar campos requeridos, formatos, rangos
+- Mostrar mensajes de error claros al usuario
+- Prevenir envío de formularios inválidos
+
+--fran
+### 5.2 SISTEMA DE IMPORTACIÓN MASIVA
+
+#### TAREA-5.2.1: Crear Servicio de Importación                                     **DIEGO**
+- Crear archivo `services/importacionService.js`
+- Implementar método `procesarArchivoCSV(archivo, usuarioId)` que:
+  - Lea el archivo CSV
+  - Valide el formato (columnas esperadas)
+  - Procese cada fila y valide datos
+  - Cree registros de ventas en lote
+  - Registre el batch de importación
+  - Retorne estadísticas (filas totales, importadas, fallidas)
+- Manejar errores de formato y datos inválidos
+- Implementar validación de vendedoras (debe existir en BD)
+
+#### TAREA-5.2.2: Crear Controlador de Importación
+- Crear archivo `controllers/importacionController.js`
+- Implementar endpoint POST /importaciones/ventas que reciba archivo CSV
+- Usar middleware de upload de archivos (multer)
+- Validar tipo de archivo (solo CSV)
+- Llamar al servicio de importación
+- Retornar resultado de la importación con estadísticas
+
+#### TAREA-5.2.3: Crear Rutas de Importación
+- Crear archivo `routes/importaciones.js`
+- Configurar multer para manejar upload de archivos
+- Definir ruta POST /importaciones/ventas
+- Aplicar middleware de autenticación
+- Registrar rutas en app.js
+
+#### TAREA-5.2.4: Implementar UI de Importación en Frontend
+- Crear componente Importaciones.jsx o agregar sección en Ventas
+- Implementar formulario de carga de archivo CSV
+- Mostrar plantilla de formato esperado
+- Mostrar progreso de importación
+- Mostrar resultados (filas importadas, errores)
+- Mostrar historial de importaciones realizadas
+
 
 #### TAREA-5.4.1: Implementar Validación de Esquemas
 - Instalar librería de validación (Joi o Zod)
@@ -40,7 +103,7 @@
 **Objetivo:** Mejorar la experiencia de usuario, performance y agregar funcionalidades de exportación.
 
 --fran 
-### 6.1 EXPORTACIÓN DE REPORTES
+### 6.1 EXPORTACIÓN DE REPORTES                                                        **HACER URGENTE**
 
 #### TAREA-6.1.1: Implementar Exportación a PDF
 - Instalar librería para generación de PDF (pdfkit, jsPDF, o puppeteer)
@@ -69,7 +132,7 @@
 - Mostrar indicador de carga durante la generación
 
 --diego
-### 6.2 PAGINACIÓN Y FILTROS AVANZADOS
+### 6.2 PAGINACIÓN Y FILTROS AVANZADOS                                    **DIEGO**
 
 #### TAREA-6.2.1: Implementar Paginación en Backend
 - Modificar repositorios para soportar paginación (skip, take)
@@ -90,7 +153,7 @@
 - Mostrar información de paginación (página X de Y, total registros)
 
 --fran 
-### 6.3 MEJORAS DE DASHBOARD
+### 6.3 MEJORAS DE DASHBOARD N                                                **HACER URGENTE**
 
 #### TAREA-6.3.1: Agregar Más KPIs al Dashboard
 - Implementar KPI de comisiones pagadas en el período
@@ -107,7 +170,7 @@
 - Usar librería de gráficos (Recharts, Chart.js)
 
 --fran 
-### 6.4 MEJORAS DE UX
+### 6.4 MEJORAS DE UX                                                        **HACER URGENTE**
 
 #### TAREA-6.4.1: Implementar Notificaciones
 - Instalar librería de notificaciones (react-toastify, sonner)
@@ -115,7 +178,7 @@
 - Agregar notificaciones de error con mensajes claros
 - Agregar notificaciones de advertencia (ej: gastos altos, liquidaciones pendientes)
 
-#### TAREA-6.4.2: Mejorar Feedback Visual
+#### TAREA-6.4.2: Mejorar Feedback Visual                                      **para que funcionen íconos instalar npm install react-icons**
 - Agregar estados de carga (spinners, skeletons) en componentes
 - Agregar confirmaciones antes de acciones destructivas (eliminar, reiniciar)
 - Mejorar mensajes de error para que sean más descriptivos

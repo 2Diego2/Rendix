@@ -1,6 +1,6 @@
 /**
  * Script para crear un usuario inicial en la tabla `usuarios`.
- * Uso: desde la carpeta backend ejecutar `node scripts/create_initial_user.js`
+ * Uso: desde la carpeta backend ejecutar `node scripts/create_initial_user.js`  fran@arr.ar --- 12345
  * Asegúrate de tener las variables de entorno configuradas en `.env`.
  */
 require('dotenv').config();
@@ -25,7 +25,7 @@ async function crearUsuarioInicial() {
       data: {
         nombre: nombre || 'Admin',
         email: email || 'admin@local',
-        password_hash,
+        password_hash, 
         rol: 'admin',
       },
     });

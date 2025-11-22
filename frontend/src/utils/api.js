@@ -37,6 +37,7 @@ api.interceptors.response.use(
     // Detectamos si el error viene del endpoint de login
     const esLogin = error.config.url.includes('/login');
 
+<<<<<<< HEAD
     // Solo redirigimos si es 401/403 Y NO es un intento de login fallido
     if ((status === 401 || status === 403) && !esLogin) {
       console.warn("Sesión expirada. Redirigiendo al login...");
@@ -50,3 +51,6 @@ api.interceptors.response.use(
   }
 );
 export default api;
+=======
+export default api;
+>>>>>>> origin/franrama

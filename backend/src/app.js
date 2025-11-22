@@ -1,15 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 require('dotenv').config();
-const ventasRouter = require("./routes/ventas"); // ruta correcta
+
+const ventasRouter = require("./routes/ventas");
 const gastosRouter = require("./routes/gastos");
 const usuariosRouter = require("./routes/usuarios");
 const authRouter = require("./routes/auth");
-const authMiddleware = require("./middlewares/authMiddleware");
 const vendedorasRouter = require("./routes/vendedoras");
-
+const exportRouter = require("./routes/export");
+const liquidacionesRouter = require("./routes/liquidaciones");
+const reportesRouter = require("./routes/reportes");
 const prisma = require('../src/prismaClient');
-
 
 const app = express();
 
@@ -21,21 +22,23 @@ app.use(cors({
 
 app.use(express.json());
 
-// Rutas públicas
-app.use('/auth', authRouter); // /auth/login
-
-// Middleware de autenticación: a partir de aquí, las rutas quedan protegidas
-app.use(authMiddleware);
-
-// Rutas protegidas
+// 🔹 Todas las rutas públicas
+app.use("/auth", authRouter);
+app.use("/exportar", exportRouter);
+app.use("/liquidaciones", liquidacionesRouter);
+app.use("/reportes", reportesRouter);
+app.use("/vendedoras", vendedorasRouter);
 app.use("/ventas", ventasRouter);
 app.use("/gastos", gastosRouter);
 app.use("/usuarios", usuariosRouter);
+<<<<<<< HEAD
 app.use("/vendedoras", vendedorasRouter);
 const asistenciasRouter = require("./routes/asistencias");
 app.use("/asistencias", asistenciasRouter);
 const liquidacionesRouter = require("./routes/liquidaciones");
 app.use("/liquidaciones", liquidacionesRouter);
+=======
+>>>>>>> origin/franrama
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
@@ -52,8 +55,11 @@ async function testConexion() {
 testConexion();
 
 module.exports = prisma;
+<<<<<<< HEAD
 
 // Middleware de manejo de errores (al final)
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 
+=======
+>>>>>>> origin/franrama

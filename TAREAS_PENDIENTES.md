@@ -556,7 +556,7 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 - Implementar descarga de archivos desde el frontend
 - Mostrar indicador de carga durante la generación
 
-### 6.2 PAGINACIÓN Y FILTROS AVANZADOS
+### 6.2 PAGINACIÓN Y FILTROS AVANZADOS                                                    **VER MAÑANA**
 
 #### TAREA-6.2.1: Implementar Paginación en Backend
 - Modificar repositorios para soportar paginación (skip, take)
@@ -564,7 +564,7 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 - Retornar metadata de paginación (total, página actual, total páginas)
 - Aplicar paginación a endpoints de listado (ventas, gastos, liquidaciones, reportes)
 
-#### TAREA-6.2.2: Implementar Búsqueda y Filtros
+#### TAREA-6.2.2: Implementar Búsqueda y Filtros   
 - Agregar parámetros de búsqueda en repositorios (buscar por texto, fecha, vendedora, etc.)
 - Implementar filtros avanzados en controladores
 - Agregar ordenamiento (sortBy, order)
@@ -578,7 +578,7 @@ Este documento detalla todas las tareas pendientes del proyecto Rendix, organiza
 
 ### 6.3 MEJORAS DE DASHBOARD
 
-#### TAREA-6.3.1: Agregar Más KPIs al Dashboard
+#### TAREA-6.3.1: Agregar Más KPIs al Dashboard                                            
 - Implementar KPI de comisiones pagadas en el período
 - Implementar KPI de promedio de ventas diarias
 - Implementar KPI de gastos por categoría (top 3)

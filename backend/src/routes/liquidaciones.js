@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const router = express.Router();
 const liquidacionesController = require('../controllers/liquidacionesController');
@@ -68,3 +69,13 @@ router.put('/:id/pagar', async (req, res) => {
 
 module.exports = router;
 
+=======
+const express = require("express");
+const router = express.Router();
+const { obtenerLiquidaciones, exportarLiquidacionesExcel } = require("../controllers/liquidacionesController");
+
+router.get("/", obtenerLiquidaciones);
+router.get("/excel", exportarLiquidacionesExcel);
+
+module.exports = router;
+>>>>>>> origin/franrama
