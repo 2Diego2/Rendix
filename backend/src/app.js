@@ -10,7 +10,7 @@ const vendedorasRouter = require("./routes/vendedoras");
 const exportRouter = require("./routes/export");
 const liquidacionesRouter = require("./routes/liquidaciones");
 const reportesRouter = require("./routes/reportes");
-const prisma = require('../src/prismaClient');
+const prisma = require('./prismaClient');
 
 const app = express();
 

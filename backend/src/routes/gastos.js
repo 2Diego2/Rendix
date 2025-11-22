@@ -1,17 +1,15 @@
-// src/routes/gastos.js
 const express = require("express");
-const router = express.Router();
-const prisma = require("../prismaClient"); // asegúrate que exporta una instancia PrismaClient
-import { exportarExcelGastos } from "../controllers/gastosController.js";
+const prisma = require("../prismaClient");
+const { exportarExcelGastos } = require("../controllers/gastosController");
 
-router.get("/exportar/excel", exportarExcelGastos);
+const router = express.Router();
 
 // helpers
 const buildPeriodo = (fecha) => {
   const d = fecha ? new Date(fecha) : new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`; // "2025-11"
+  return `${y}-${m}`;
 };
 
 const ensureNumber = (v) => {
@@ -19,7 +17,14 @@ const ensureNumber = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
+// =========================================
+// EXPORTAR EXCEL
+// =========================================
+router.get("/exportar/excel", exportarExcelGastos);
+
+// =========================================
 // GET: todos los gastos
+// =========================================
 router.get("/", async (req, res) => {
   try {
     const gastos = await prisma.gasto.findMany({
@@ -32,7 +37,9 @@ router.get("/", async (req, res) => {
   }
 });
 
+// =========================================
 // GET: gastos de hoy
+// =========================================
 router.get("/hoy", async (req, res) => {
   try {
     const inicioDelDia = new Date();
@@ -58,7 +65,9 @@ router.get("/hoy", async (req, res) => {
   }
 });
 
-// POST: crear uno o varios gastos
+// =========================================
+// POST: crear gasto
+// =========================================
 router.post("/", async (req, res) => {
   try {
     const { monto, detalle } = req.body;
@@ -75,15 +84,11 @@ router.post("/", async (req, res) => {
         categoria: "Adicional",
         fecha: new Date(),
         periodo: periodo,
-
-        usuario: {
-          connect: { id: 1 }
-        }
-      }
+        creado_por: 1, // TODO: obtener del token JWT cuando esté implementado
+      },
     });
 
     res.json(nuevoGasto);
-
   } catch (err) {
     console.error("🔥 ERROR REAL AL CREAR GASTO:");
     console.error(err);
@@ -91,9 +96,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-
-
-// PUT: actualizar gasto por id
+// =========================================
+// PUT: actualizar gasto
+// =========================================
 router.put("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -120,7 +125,9 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE: eliminar gasto por id
+// =========================================
+// DELETE: eliminar gasto
+// =========================================
 router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);

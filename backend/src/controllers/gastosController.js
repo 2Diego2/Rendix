@@ -1,13 +1,14 @@
 const { PrismaClient } = require("../generated/prisma/index.js");
+const ExcelJS = require("exceljs");
 const prisma = new PrismaClient();
-import ExcelJS from "exceljs";
+
 // ======================================================
 // OBTENER TODOS LOS GASTOS
 // ======================================================
 const obtenerGastos = async (req, res) => {
   try {
     const gastos = await prisma.gasto.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { fecha: "desc" },
     });
     res.json(gastos);
   } catch (error) {
@@ -21,18 +22,26 @@ const obtenerGastos = async (req, res) => {
 // ======================================================
 const registrarGasto = async (req, res) => {
   try {
-    const { monto, detalle } = req.body;
+    const { monto, descripcion, categoria, fecha } = req.body;
 
-    if (!monto || !detalle) {
+    if (!monto) {
       return res
         .status(400)
-        .json({ error: "Faltan campos obligatorios (monto y detalle)" });
+        .json({ error: "El campo monto es obligatorio" });
     }
+
+    const fechaActual = fecha ? new Date(fecha) : new Date();
+    const d = fechaActual;
+    const periodo = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 
     const nuevoGasto = await prisma.gasto.create({
       data: {
-        monto: Number(monto),
-        detalle,
+        monto: parseFloat(monto),
+        descripcion: descripcion || "Sin descripción",
+        categoria: categoria || "Adicional",
+        fecha: fechaActual,
+        periodo: periodo,
+        creado_por: 1, // TODO: obtener del token JWT cuando esté implementado
       },
     });
 
@@ -67,14 +76,21 @@ const eliminarGasto = async (req, res) => {
 const actualizarGasto = async (req, res) => {
   try {
     const { id } = req.params;
-    const { monto, detalle } = req.body;
+    const { monto, descripcion, categoria, fecha } = req.body;
+
+    const data = {};
+    if (monto !== undefined) data.monto = parseFloat(monto);
+    if (descripcion !== undefined) data.descripcion = descripcion;
+    if (categoria !== undefined) data.categoria = categoria;
+    if (fecha !== undefined) {
+      data.fecha = new Date(fecha);
+      const d = new Date(fecha);
+      data.periodo = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    }
 
     const gastoActualizado = await prisma.gasto.update({
       where: { id: Number(id) },
-      data: {
-        monto: monto ? Number(monto) : undefined,
-        detalle: detalle || undefined,
-      },
+      data,
     });
 
     res.json(gastoActualizado);
@@ -85,24 +101,17 @@ const actualizarGasto = async (req, res) => {
 };
 
 // ======================================================
-// EXPORTAR TODAS LAS FUNCIONES
+// EXPORTAR EXCEL
 // ======================================================
-module.exports = {
-  obtenerGastos,
-  registrarGasto,
-  eliminarGasto,
-  actualizarGasto,
-};
-
-
-export const exportarExcelGastos = async (req, res) => {
+const exportarExcelGastos = async (req, res) => {
   try {
     const gastos = await prisma.gasto.findMany({
       include: {
         usuario: {
           select: { nombre: true }
         }
-      }
+      },
+      orderBy: { fecha: "desc" }
     });
 
     const workbook = new ExcelJS.Workbook();
@@ -137,10 +146,20 @@ export const exportarExcelGastos = async (req, res) => {
     res.setHeader("Content-Disposition", "attachment; filename=gastos.xlsx");
 
     await workbook.xlsx.write(res);
-
     res.end();
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al exportar Excel" });
   }
+};
+
+// ======================================================
+// EXPORTAR TODAS LAS FUNCIONES
+// ======================================================
+module.exports = {
+  obtenerGastos,
+  registrarGasto,
+  eliminarGasto,
+  actualizarGasto,
+  exportarExcelGastos,
 };

@@ -1,7 +1,6 @@
 const ExcelJS = require("exceljs");
 const ventasService = require("../services/ventasService");
-const XLSX = require("xlsx");
-const pool = require("../config/db");
+const prisma = require("../prismaClient");
 
 // =========================================
 // EXPORTAR VENTAS
@@ -10,7 +9,7 @@ async function exportarExcelVentas(req, res) {
   try {
     const dias = parseInt(req.query.dias) || 0;
 
-    const { ventas, totalHoy, cantidadHoy } =
+    const { ventas } =
       dias === 0
         ? await ventasService.getVentasHoy()
         : await ventasService.getVentasPorRango(dias);
@@ -44,55 +43,49 @@ async function exportarExcelVentas(req, res) {
       });
     });
 
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=ventas_${dias === 0 ? "hoy" : `ultimos_${dias}_dias`}.xlsx`
-    );
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
+    const nombreArchivo = `ventas_${dias === 0 ? "hoy" : `ultimos_${dias}_dias`}.xlsx`;
 
-    await workbook.xlsx.write(res);
-    res.end();
-  } catch (err) {
-    console.error("Error exportar Excel:", err);
-    res.status(500).json({ error: "Error al generar Excel" });
-  }
-}
+    // Generar el Excel en buffer
+    const buffer = await workbook.xlsx.writeBuffer();
 
-// =========================================
-// EXPORTAR GASTOS
-// =========================================
-async function exportarExcelGastos(req, res) {
-  try {
-    const [rows] = await pool.query(`
-      SELECT concepto, descripcion, monto, fecha, categoria 
-      FROM gastos
-      ORDER BY fecha DESC
-    `);
+    // Registrar en la DB (REPORTE)
+    const tamañoMB = (buffer.byteLength / 1024 / 1024).toFixed(2) + " MB";
 
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    const workbook = XLSX.utils.book_new();
+    await prisma.reporte.create({
+      data: {
+        nombre: nombreArchivo,
+        tipo: "ventas",
+        tamaño: tamañoMB,
+      }
+    });
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Gastos");
-
-    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
-
-    res.setHeader("Content-Disposition", "attachment; filename=gastos.xlsx");
+    // Mandar archivo al navegador
+    res.setHeader("Content-Disposition", `attachment; filename=${nombreArchivo}`);
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
     res.send(buffer);
+
   } catch (err) {
-    console.error("Error exportando gastos:", err);
-    res.status(500).json({ error: "Error al exportar gastos" });
+    console.error("Error exportando ventas:", err);
+    res.status(500).json({ error: "Error al generar Excel" });
   }
 }
 
-// 👇 **EXPORTAMOS TODO CORRECTO**
+// =========================================
+// EXPORTAR GASTOS (delegar a gastosController)
+// =========================================
+async function exportarExcelGastos(req, res) {
+  // Reutilizar la función de gastosController
+  const { exportarExcelGastos: exportarGastos } = require("./gastosController");
+  return exportarGastos(req, res);
+}
+
+// =========================================
+// EXPORTAR FUNCIONES
+// =========================================
 module.exports = {
   exportarExcelVentas,
   exportarExcelGastos,
