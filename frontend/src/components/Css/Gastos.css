@@ -1,0 +1,167 @@
+/* Contenedor Principal */
+.gastos-container {
+    padding: var(--space-6);
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: var(--font-family);
+    color: var(--gray-900);
+}
+
+/* Header */
+.gastos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.gastos-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Cards */
+.gastos-card {
+    background-color: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Formulario */
+.gastos-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-4);
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.form-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--gray-700);
+}
+
+/* Tabla */
+.gastos-table-wrapper {
+    overflow-x: auto;
+}
+
+.gastos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+.gastos-table th {
+    background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-weight: var(--font-semibold);
+    color: var(--gray-700);
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.gastos-table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    vertical-align: middle;
+}
+
+.gastos-table tr:last-child td {
+    border-bottom: none;
+}
+
+.gastos-table tr:hover td {
+    background-color: var(--gray-50);
+}
+
+/* Badges de Categoría */
+.badge-categoria {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+}
+
+.badge-fijo {
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+    border: 1px solid var(--primary-200);
+}
+
+.badge-variable {
+    background-color: var(--warning-100);
+    color: var(--warning-800);
+    border: 1px solid var(--warning-200);
+}
+
+.badge-adicional {
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-200);
+}
+
+/* Botones de Acción */
+.action-buttons {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+}
+
+.btn-icon {
+    padding: 6px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    background: none;
+    border: 1px solid transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background-color: var(--gray-100);
+    color: var(--gray-900);
+}
+
+.btn-edit:hover {
+    color: var(--primary-600);
+    background-color: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+.btn-delete:hover {
+    color: var(--error-600);
+    background-color: var(--error-50);
+    border-color: var(--error-200);
+}

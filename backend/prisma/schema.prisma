@@ -147,6 +147,7 @@ model Liquidacion {
   comisiones            Decimal   @db.Decimal(12, 2)
   presentismo_descuento Decimal?  @default(0) @db.Decimal(12, 2)
   bonos                 Decimal?  @default(0) @db.Decimal(12, 2)
+  gastos_deduct         Decimal?  @default(0) @db.Decimal(12, 2)
   total_pagar           Decimal   @db.Decimal(12, 2)
   estado                String    @db.VarChar(20) // 'generada' | 'pagada'
   generado_por          Int

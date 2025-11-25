@@ -7,8 +7,8 @@ const liquidacionesRepo = require('../repositories/liquidacionesRepository');
 const prisma = require('../prismaClient');
 
 // Parámetros de política (ajustables por defecto)
-const PRESENTISMO_THRESHOLD = 85; 
-const PRESENTISMO_BONUS_RATE = 0.10; 
+const PRESENTISMO_THRESHOLD = 85;
+const PRESENTISMO_BONUS_RATE = 0.10;
 
 /**
  * Calcula la liquidación de una vendedora para un periodo (YYYY-MM).
@@ -47,14 +47,18 @@ async function calcularLiquidacion(vendedoraId, periodo, usuarioId = null, optio
 
   let presentismo_descuento = 0;
   let bonos = 0;
-  
+
   if (porcentajePresentismo >= threshold) {
     bonos = Number((sueldo_base * bonusRate).toFixed(2));
   } else {
     presentismo_descuento = Number((sueldo_base * bonusRate).toFixed(2));
   }
 
-  const total_pagar = Number((sueldo_base + comisiones + bonos - presentismo_descuento).toFixed(2));
+  // 5. Calcular total a pagar
+  // Nota: gastos_deduct por ahora es 0, pero preparamos el campo para futuro uso
+  const gastos_deduct = 0;
+
+  const total_pagar = Number((sueldo_base + comisiones + bonos - presentismo_descuento - gastos_deduct).toFixed(2));
 
   const liquidacion = {
     vendedora_id: Number(vendedoraId),
@@ -63,17 +67,17 @@ async function calcularLiquidacion(vendedoraId, periodo, usuarioId = null, optio
     comisiones: comisiones,
     presentismo_descuento: presentismo_descuento,
     bonos: bonos,
+    gastos_deduct: gastos_deduct,
     total_pagar: total_pagar,
     estado: 'generada',
     generado_por: usuarioId ? Number(usuarioId) : null,
   };
 
-  return { liquidacion, meta: { totalVentas, porcentajePresentismo, gastosDeduct: 0 } };
+  return { liquidacion, meta: { totalVentas, porcentajePresentismo, gastosDeduct: gastos_deduct } };
 }
 
 /**
  * Genera liquidación para una vendedora y la guarda en la DB.
- * CORREGIDO: Ahora recibe 'options' para pasarlo a calcularLiquidacion
  */
 async function generarYGuardar(vendedoraId, periodo, usuarioId, options = {}) {
   const { liquidacion, meta } = await calcularLiquidacion(vendedoraId, periodo, usuarioId, options);
@@ -83,27 +87,25 @@ async function generarYGuardar(vendedoraId, periodo, usuarioId, options = {}) {
 
 /**
  * Genera liquidaciones para todas las vendedoras de un periodo.
- * CORREGIDO: Ahora recibe 'options' desde el controller
  */
 async function generarLiquidacionesPeriodo(periodo, usuarioId, options = {}) {
   const vendedoras = await prisma.vendedora.findMany();
   const results = [];
-  
+
   for (const v of vendedoras) {
     try {
-        // --- TU LÓGICA CORRECTA DE PREVENCIÓN DE DUPLICADOS ---
-        const existentes = await liquidacionesRepo.findByVendedoraAndPeriodo(v.id, periodo);
-        
-        if (existentes.length > 0) {
-          // Si ya existe, agregamos error y saltamos (continue)
-          results.push({ vendedora_id: v.id, ok: false, error: 'Liquidación ya existente para este periodo' });
-          continue; 
-        } 
-        
-        // Si no existe, generamos (pasando las options)
-        const r = await generarYGuardar(v.id, periodo, usuarioId, options);
-        results.push({ vendedora_id: v.id, ok: true, detalle: r });
-        
+      // Verificar si ya existe
+      const existentes = await liquidacionesRepo.findByVendedoraAndPeriodo(v.id, periodo);
+
+      if (existentes.length > 0) {
+        results.push({ vendedora_id: v.id, ok: false, error: 'Liquidación ya existente para este periodo' });
+        continue;
+      }
+
+      // Si no existe, generamos
+      const r = await generarYGuardar(v.id, periodo, usuarioId, options);
+      results.push({ vendedora_id: v.id, ok: true, detalle: r });
+
     } catch (e) {
       results.push({ vendedora_id: v.id, ok: false, error: e.message });
     }

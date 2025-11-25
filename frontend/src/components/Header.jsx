@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useFiltro } from './Filtro/FiltroContext'; // Asegúrate de que esté bien importado
-import { FaCalendar } from "react-icons/fa";
-import { IoMdMoon } from "react-icons/io";
-import { FiSun } from "react-icons/fi";
+import { useFiltro } from './Filtro/FiltroContext';
+import './Css/Header.css';
 
 const pageNames = {
   ventas: "Ventas",
@@ -10,7 +8,10 @@ const pageNames = {
   gastos: "Gastos",
   actividades: "Actividades",
   reportes: "Reportes",
-  dashboard: "Dashboard"
+  dashboard: "Dashboard",
+  asistencias: "Asistencias",
+  vendedoras: "Vendedoras",
+  gestionar_vendedoras: "Vendedoras"
 };
 
 export function Header({ currentPage, isDarkMode, onThemeToggle }) {
@@ -45,53 +46,6 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
     setMenuAbierto(false);
   };
 
-  const exportar = async () => {
-    try {
-      let endpoint = "";
-
-      switch (currentPage) {
-        case "ventas":
-          endpoint = "/reportes/exportar/pdf?tipo=ventas";
-          break;
-        case "liquidaciones":
-          endpoint = "/reportes/exportar/pdf?tipo=liquidaciones";
-          break;
-        case "gastos":
-          endpoint = "/reportes/exportar/pdf?tipo=gastos";
-          break;
-        case "actividades":
-          endpoint = "/reportes/exportar/pdf?tipo=actividades";
-          break;
-        case "reportes":
-          endpoint = "/reportes/exportar/pdf?tipo=reportes";
-          break;
-        default:
-          alert("Esta página no tiene exportación todavía.");
-          return;
-      }
-
-      const res = await fetch("http://localhost:3000" + endpoint, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
-
-      if (!res.ok) throw new Error("Error al generar PDF");
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `reporte-${currentPage}.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo exportar el PDF");
-    }
-  };
-
   const handleLogout = () => {
     if (confirm("¿Estás seguro de que quieres cerrar sesión?")) {
       localStorage.removeItem('token');
@@ -111,44 +65,26 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
       <div className="header-right">
 
         <div style={{ position: 'relative' }}>
-          <button className="btn btn-outline" onClick={() => setMenuAbierto(!menuAbierto)}>
-            <span className="icon"><FaCalendar /></span>
+          <button className="btn-outline" onClick={() => setMenuAbierto(!menuAbierto)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
             {label}
-            <span className="icon">▼</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </button>
 
           {menuAbierto && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '110%',
-                right: 0,
-                backgroundColor: 'var(--card-bg, white)',
-                border: '1px solid var(--border, #eee)',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                padding: '8px',
-                zIndex: 10,
-                minWidth: '180px',
-              }}
-            >
+            <div className="dropdown-menu">
               {opciones.map((op) => (
                 <button
                   key={op.dias}
                   onClick={() => handleSelect(op)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '10px 12px',
-                    textAlign: 'left',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    cursor: 'pointer',
-                    borderRadius: '6px',
-                    color: 'var(--text-color, black)'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg, #f4f4f4)'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="dropdown-item"
                 >
                   {op.texto}
                 </button>
@@ -158,11 +94,27 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
         </div>
 
         <button
-          className="btn btn-ghost"
+          className="btn-ghost"
           onClick={onThemeToggle}
           title={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
         >
-          <span className="icon">{isDarkMode ? <FiSun /> : <IoMdMoon />}</span>
+          {isDarkMode ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          )}
         </button>
 
         {/* User info */}
@@ -172,21 +124,24 @@ export function Header({ currentPage, isDarkMode, onThemeToggle }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <span className="user-name">{usuario.nombre}</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
-              {usuario.rol || 'Usuario'} • Vista de {label.toLowerCase()}
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>
+              {usuario.rol || 'Usuario'}
             </span>
           </div>
         </div>
 
         <button
-          className="btn btn-ghost"
+          className="btn-ghost"
           onClick={handleLogout}
           title="Cerrar sesión"
-          style={{ color: 'var(--destructive)' }}
+          style={{ color: 'var(--error-600)' }}
         >
-          Cerrar Sesión
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
         </button>
-
 
       </div>
     </header>

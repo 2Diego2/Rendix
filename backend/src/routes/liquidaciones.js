@@ -17,6 +17,9 @@ router.get('/', liquidacionesController.getByPeriodo);
 // GET /liquidaciones/excel -> Exportar Excel (Debe ir antes de /:id o /:vendedoraId)
 router.get('/excel', liquidacionesController.exportarLiquidacionesExcel);
 
+// DELETE /liquidaciones/:id -> eliminar liquidación (si no está pagada)
+router.delete('/:id', liquidacionesController.eliminarLiquidacion);
+
 // PUT /liquidaciones/:id/pagar -> marcar como pagada
 router.put('/:id/pagar', async (req, res) => {
   try {

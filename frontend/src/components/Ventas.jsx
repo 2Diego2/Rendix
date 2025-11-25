@@ -212,10 +212,32 @@ const Ventas = () => {
   };
 
   return (
-    <div className="dashboard-content">
+    <div className="ventas-container">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
 
-      {/* Filtros de fecha con el nuevo componente */}
+      {/* Header */}
+      <div className="ventas-header">
+        <div>
+          <h3 className="ventas-title">Registro de Ventas</h3>
+          <p className="ventas-subtitle">
+            Total ({periodoLabel}): <strong>${totalPeriodo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</strong> • {cantidadPeriodo} ventas
+          </p>
+        </div>
+        <button
+          className="btn btn-outline"
+          onClick={exportarExcelVentas}
+          title="Exportar a Excel"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Exportar Excel
+        </button>
+      </div>
+
+      {/* Filtros */}
       <FiltroFechas
         onFiltrar={(inicio, fin) => {
           setFechaInicio(inicio);
@@ -229,66 +251,32 @@ const Ventas = () => {
         }}
       />
 
-      {/* Formulario de Venta con botón de exportar */}
-      <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <div>
-            <h3 style={{ margin: 0, marginBottom: "4px" }}>Realizar venta</h3>
-            <p style={{ margin: 0, color: "var(--muted-foreground)", fontSize: "14px" }}>
-              Total ({periodoLabel}): <strong>${totalPeriodo.toFixed(2)}</strong> • {cantidadPeriodo} ventas
-            </p>
-          </div>
+      {/* Tarjeta de Nueva Venta */}
+      <div className="ventas-card">
+        <div className="card-header">
+          <h4 className="card-title">Realizar Venta</h4>
           <button
-            onClick={exportarExcelVentas}
-            style={{
-              padding: "8px 14px",
-              backgroundColor: "#16A34A",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
+            className={`btn ${mostrarFormulario ? 'btn-outline' : 'btn-primary'}`}
+            onClick={() => setMostrarFormulario(!mostrarFormulario)}
           >
-            Exportar Excel
+            {mostrarFormulario ? "Cancelar" : "+ Nueva Venta"}
           </button>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          style={{ marginBottom: mostrarFormulario ? "20px" : "0" }}
-        >
-          {mostrarFormulario ? "Cancelar" : "Realizar venta"}
-        </button>
-
         {mostrarFormulario && (
-          <div style={{ marginTop: "20px" }}>
-            <h4 style={{ marginBottom: "10px" }}>Nueva venta</h4>
+          <div className="venta-form">
             {productos.map((producto, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
+              <div key={index} className="producto-row">
                 <input
                   type="text"
+                  className="input-control"
                   placeholder="Producto"
                   value={producto.nombre}
                   onChange={(e) => handleProductoChange(index, "nombre", e.target.value)}
-                  style={{
-                    flex: 2,
-                    padding: "8px",
-                    border: "1px solid var(--border)",
-                    borderRadius: "var(--radius-sm)",
-                  }}
                 />
                 <input
                   type="number"
+                  className="input-control"
                   placeholder="Cant."
                   min="1"
                   value={producto.cantidad === "" ? "" : producto.cantidad}
@@ -297,19 +285,12 @@ const Ventas = () => {
                     handleProductoChange(index, "cantidad", value === "" ? "" : Number(value));
                   }}
                   onBlur={() => {
-                    if (producto.cantidad === "") {
-                      handleProductoChange(index, "cantidad", 1);
-                    }
-                  }}
-                  style={{
-                    width: "70px",
-                    padding: "8px",
-                    border: "1px solid var(--border)",
-                    borderRadius: "var(--radius-sm)",
+                    if (producto.cantidad === "") handleProductoChange(index, "cantidad", 1);
                   }}
                 />
                 <input
                   type="number"
+                  className="input-control"
                   placeholder="Precio"
                   min="0"
                   value={producto.precio === "" ? "" : producto.precio}
@@ -318,86 +299,91 @@ const Ventas = () => {
                     handleProductoChange(index, "precio", value === "" ? "" : Number(value));
                   }}
                   onBlur={() => {
-                    if (producto.precio === "") {
-                      handleProductoChange(index, "precio", 0);
-                    }
-                  }}
-                  style={{
-                    width: "100px",
-                    padding: "8px",
-                    border: "1px solid var(--border)",
-                    borderRadius: "var(--radius-sm)",
+                    if (producto.precio === "") handleProductoChange(index, "precio", 0);
                   }}
                 />
                 <button
-                  className="btn btn-outline"
+                  className="btn-icon btn-remove"
                   onClick={() => eliminarProducto(index)}
-                  style={{ padding: "6px 10px" }}
+                  title="Eliminar item"
                 >
-                  ×
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
                 </button>
               </div>
             ))}
+
+            <button className="btn btn-add" onClick={agregarProducto}>
+              + Agregar otro producto
+            </button>
+
             {formErrors && formErrors.length > 0 && (
-              <div style={{ color: 'red', marginTop: 8 }}>
-                <ul>
+              <div className="info-note" style={{ marginTop: '16px', borderColor: 'var(--error-600)', backgroundColor: 'var(--error-50)', color: 'var(--error-600)' }}>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
                   {formErrors.map((e, i) => <li key={i}>{e}</li>)}
                 </ul>
               </div>
             )}
-            <button className="btn btn-outline" onClick={agregarProducto}>
-              + Agregar producto
-            </button>
-            <div style={{ marginTop: '10px' }}>
-              <label>Vendedora:</label>
-              <select
-                value={vendedoraSeleccionada || ''}
-                onChange={(e) => setVendedoraSeleccionada(e.target.value ? Number(e.target.value) : null)}
-                style={{ marginLeft: '8px', padding: "6px", borderRadius: "6px", border: "1px solid var(--border)" }}
-              >
-                <option value="">-- No asignada --</option>
-                {vendedoras.map((v) => (
-                  <option key={v.id} value={v.id}>{v.nombre}</option>
-                ))}
-              </select>
-            </div>
-            <div style={{ marginTop: "15px" }}>
+
+            <div className="form-actions">
+              <div className="vendedora-select-group">
+                <label className="control-label" style={{ marginBottom: 0 }}>Vendedora:</label>
+                <select
+                  className="input-control select-control"
+                  value={vendedoraSeleccionada || ''}
+                  onChange={(e) => setVendedoraSeleccionada(e.target.value ? Number(e.target.value) : null)}
+                  style={{ width: '200px' }}
+                >
+                  <option value="">-- Seleccionar --</option>
+                  {vendedoras.map((v) => (
+                    <option key={v.id} value={v.id}>{v.nombre}</option>
+                  ))}
+                </select>
+              </div>
               <button
                 className="btn btn-primary"
                 onClick={realizarVenta}
                 disabled={loading}
               >
-                {loading ? "Registrando..." : "Confirmar venta"}
+                {loading ? (
+                  <>
+                    <div className="spinner"></div>
+                    Registrando...
+                  </>
+                ) : (
+                  "Confirmar Venta"
+                )}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Tabla de ventas - Ancho completo */}
-      <div className="card" style={{ padding: "12px" }}>
-        <h3 style={{ marginBottom: "12px" }}>Registro de ventas ({periodoLabel})</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      {/* Tabla de Ventas */}
+      <div className="ventas-table-wrapper card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="ventas-table">
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border)" }}>
-              <th style={{ padding: "12px", textAlign: "left" }}>Ticket</th>
-              <th style={{ padding: "12px", textAlign: "left" }}>Fecha</th>
-              <th style={{ padding: "12px", textAlign: "left" }}>Hora</th>
-              <th style={{ padding: "12px", textAlign: "left" }}>Vendedora</th>
-              <th style={{ padding: "12px", textAlign: "left" }}>Items</th>
-              <th style={{ padding: "12px", textAlign: "left" }}>Total</th>
+            <tr>
+              <th>Ticket</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Vendedora</th>
+              <th>Items</th>
+              <th className="text-right">Total</th>
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {loading && !mostrarFormulario ? (
               <tr>
-                <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                  Cargando ventas...
+                <td colSpan="6" className="empty-state">
+                  <div className="spinner" style={{ margin: '0 auto', borderColor: 'var(--gray-300)', borderTopColor: 'var(--primary-600)' }}></div>
                 </td>
               </tr>
             ) : ventas.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                <td colSpan="6" className="empty-state">
                   No hay ventas registradas en este período.
                 </td>
               </tr>
@@ -406,26 +392,28 @@ const Ventas = () => {
                 .slice()
                 .reverse()
                 .map((venta) => (
-                  <tr key={venta.id || `${venta.fecha}-${venta.ticket_num}`} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "12px" }}>{venta.ticket_num || 'N/A'}</td>
-                    <td style={{ padding: "12px" }}>
+                  <tr key={venta.id || `${venta.fecha}-${venta.ticket_num}`}>
+                    <td>#{venta.ticket_num || 'N/A'}</td>
+                    <td>
                       {venta.fecha ? new Date(venta.fecha).toLocaleDateString('es-AR') : 'N/A'}
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td>
                       {venta.hora ? new Date(venta.hora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td style={{ fontWeight: 500 }}>
                       {venta.vendedora ? venta.vendedora.nombre : '--'}
                     </td>
-                    <td style={{ padding: "12px" }}>
-                      {(venta.items || []).map((p, i) => (
-                        <div key={i} style={{ fontSize: "13px", color: "var(--muted-foreground)", marginBottom: "4px" }}>
-                          {p.descripcion} x{p.cantidad} - ${Number(p.precio_unitario).toFixed(2)}
-                        </div>
-                      ))}
+                    <td>
+                      <div className="item-list">
+                        {(venta.items || []).map((p, i) => (
+                          <div key={i} className="item-detail">
+                            {p.descripcion} <span style={{ color: 'var(--gray-400)' }}>x{p.cantidad}</span>
+                          </div>
+                        ))}
+                      </div>
                     </td>
-                    <td style={{ padding: "12px", color: "var(--chart-1)", fontWeight: "600" }}>
-                      ${Number(venta.total || 0).toFixed(2)}
+                    <td className="text-right total-amount">
+                      ${Number(venta.total || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))

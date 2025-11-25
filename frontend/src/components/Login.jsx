@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
 import { validarLoginFrontend } from '../utils/validators';
-// Importamos el CSS (te lo paso abajo para que se vea lindo)
-import './Css/Login.css'; 
+import './Css/Login.css';
 
 export default function Login({ onLoginExitoso }) {
   const [email, setEmail] = useState('');
@@ -25,15 +24,14 @@ export default function Login({ onLoginExitoso }) {
 
     try {
       const respuesta = await api.post('/auth/login', { email, password });
-      
+
       // Desestructuramos la respuesta
       const { token, usuario } = respuesta.data;
 
       // 1. Guardar token
       localStorage.setItem('token', token);
 
-      // 2. --- CORRECCIÓN AQUÍ ---
-      // Guardamos el objeto usuario completo (para leer nombre e inicial en el Dash)
+      // 2. Guardamos el objeto usuario completo
       localStorage.setItem('usuario', JSON.stringify(usuario));
 
       // 3. Notificar al padre (App.jsx) para que cambie la pantalla
@@ -57,7 +55,6 @@ export default function Login({ onLoginExitoso }) {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          {/* Puedes poner aquí tu logo si quieres */}
           <h2>Bienvenido a Rendix</h2>
           <p>Inicia sesión para gestionar tu negocio</p>
         </div>

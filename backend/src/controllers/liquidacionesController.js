@@ -71,6 +71,7 @@ async function obtenerLiquidaciones(req, res) {
       comisiones: Number(l.comisiones),
       bonos: Number(l.bonos ?? 0),
       descuentos: Number(l.presentismo_descuento ?? 0),
+      gastos_deduct: Number(l.gastos_deduct ?? 0),
       total: Number(l.total_pagar),
     }));
 
@@ -141,5 +142,28 @@ async function exportarLiquidacionesExcel(req, res) {
   }
 }
 
-module.exports = { generarPeriodo, getByVendedoraPeriodo, getByPeriodo, obtenerLiquidaciones, exportarLiquidacionesExcel };
+async function eliminarLiquidacion(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    // Verificar si existe y si no está pagada
+    const liquidacion = await prisma.liquidacion.findUnique({ where: { id } });
+    if (!liquidacion) {
+      return res.status(404).json({ error: 'Liquidación no encontrada' });
+    }
+
+    if (liquidacion.estado === 'pagada') {
+      return res.status(400).json({ error: 'No se puede eliminar una liquidación pagada' });
+    }
+
+    await prisma.liquidacion.delete({ where: { id } });
+    res.json({ mensaje: 'Liquidación eliminada correctamente' });
+
+  } catch (error) {
+    console.error("❌ Error eliminando liquidación:", error);
+    res.status(500).json({ error: "Error eliminando liquidación" });
+  }
+}
+
+module.exports = { generarPeriodo, getByVendedoraPeriodo, getByPeriodo, obtenerLiquidaciones, exportarLiquidacionesExcel, eliminarLiquidacion };
 
