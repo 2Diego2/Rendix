@@ -16,7 +16,7 @@ async function exportarExcelVentas(req, res) {
     if (fechaInicio || fechaFin) {
       const ventasRepo = require('../repositories/ventasRepository');
       let startDate, endDate;
-      
+
       if (fechaInicio) {
         startDate = new Date(fechaInicio);
         startDate.setHours(0, 0, 0, 0);
@@ -26,7 +26,7 @@ async function exportarExcelVentas(req, res) {
         startDate.setDate(startDate.getDate() - 30);
         startDate.setHours(0, 0, 0, 0);
       }
-      
+
       if (fechaFin) {
         endDate = new Date(fechaFin);
         endDate.setHours(23, 59, 59, 999);
@@ -35,7 +35,7 @@ async function exportarExcelVentas(req, res) {
         endDate = new Date();
         endDate.setHours(23, 59, 59, 999);
       }
-      
+
       const ventasData = await ventasRepo.findVentasPorRango(startDate, endDate);
       totalHoy = ventasData.reduce((acc, v) => acc + Number(v.total || 0), 0);
       cantidadHoy = ventasData.length;
@@ -89,7 +89,7 @@ async function exportarExcelVentas(req, res) {
     } else if (fechaFin) {
       nombreArchivo = `ventas_hasta_${fechaFin}.xlsx`;
     }
-    
+
     res.setHeader(
       "Content-Disposition",
       `attachment; filename=${nombreArchivo}`
@@ -150,8 +150,76 @@ async function exportarExcelGastos(req, res) {
   }
 }
 
-// 👇 **EXPORTAMOS TODO CORRECTO**
+// =========================================
+// EXPORTAR ASISTENCIAS
+// =========================================
+async function exportarExcelAsistencias(req, res) {
+  try {
+    const { fecha } = req.query;
+    const asistenciasRepo = require('../repositories/asistenciasRepository');
+
+    let asistencias = [];
+    let nombreArchivo = "asistencias.xlsx";
+
+    if (fecha) {
+      asistencias = await asistenciasRepo.findByFecha(fecha);
+      nombreArchivo = `asistencias_${fecha}.xlsx`;
+    } else {
+      // Si no hay fecha, quizás exportar todo o hoy?
+      // Por defecto hoy
+      const hoy = new Date().toISOString().slice(0, 10);
+      asistencias = await asistenciasRepo.findByFecha(hoy);
+      nombreArchivo = `asistencias_${hoy}.xlsx`;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Asistencias");
+
+    sheet.addRow([
+      "Fecha",
+      "Vendedora",
+      "Estado",
+      "Motivo",
+    ]);
+
+    asistencias.forEach((a) => {
+      sheet.addRow([
+        a.fecha ? new Date(a.fecha).toLocaleDateString('es-AR') : '',
+        a.vendedora ? a.vendedora.nombre : 'Desconocido',
+        a.presente ? 'Presente' : 'Ausente',
+        a.motivo || '',
+      ]);
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${nombreArchivo}`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const tamañoMB = (buffer.length / 1024 / 1024).toFixed(2) + " MB";
+
+    // Registrar en historial
+    agregarReporte(
+      nombreArchivo,
+      'asistencias', // Nuevo tipo
+      tamañoMB,
+      { fecha }
+    );
+
+    res.send(buffer);
+  } catch (err) {
+    console.error("Error exportando asistencias:", err);
+    res.status(500).json({ error: "Error al exportar asistencias" });
+  }
+}
+
 module.exports = {
   exportarExcelVentas,
   exportarExcelGastos,
+  exportarExcelAsistencias,
 };

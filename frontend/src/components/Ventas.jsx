@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../utils/api";
 import { validarVentaFrontend } from '../utils/validators';
-// 1. Importamos el hook del FiltroContext
-import { useFiltro } from './Filtro/FiltroContext'; // (Asegúrate que la ruta sea correcta)
+import FiltroFechas from './Filtros/FiltroFechas';
 import { NotificationContainer } from './Notification';
 import './Css/Ventas.css';
 
 const Ventas = () => {
-  // 2. Leemos el rango de días del contexto
-  const { rangoDias } = useFiltro();
+  // Estado para el rango de días (por defecto 0 = hoy)
+  // Lo usamos para la etiqueta, pero el filtro principal ahora lo maneja FiltroFechas
+  const [rangoDias, setRangoDias] = useState(0);
 
   const [ventas, setVentas] = useState([]);
-  // 3. Renombramos los estados para que sean genéricos (no solo "hoy")
   const [totalPeriodo, setTotalPeriodo] = useState(0);
   const [cantidadPeriodo, setCantidadPeriodo] = useState(0);
 
@@ -20,14 +19,13 @@ const Ventas = () => {
   const [productos, setProductos] = useState([{ nombre: "", cantidad: 1, precio: "" }]);
   const [vendedoras, setVendedoras] = useState([]);
   const [vendedoraSeleccionada, setVendedoraSeleccionada] = useState(null);
-  const [loading, setLoading] = useState(true); // Estado de carga para el fetch inicial
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
 
   // Filtros de fecha
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
 
-  // Función para agregar notificaciones (siempre 3 segundos)
   const addNotification = (message, type = 'success') => {
     const id = Date.now() + Math.random();
     setNotifications(prev => [...prev, { id, message, type, duration: 3000 }]);
@@ -37,12 +35,15 @@ const Ventas = () => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  // 4. Creamos una función para obtener la etiqueta del período
-  const getPeriodoLabel = (dias) => {
-    if (dias === 0) return "Hoy";
-    return `Últimos ${dias} días`;
+  const getPeriodoLabel = () => {
+    if (fechaInicio && fechaFin) {
+      if (fechaInicio === fechaFin) return `Día ${new Date(fechaInicio).toLocaleDateString('es-AR')}`;
+      return `Del ${new Date(fechaInicio).toLocaleDateString('es-AR')} al ${new Date(fechaFin).toLocaleDateString('es-AR')}`;
+    }
+    if (rangoDias === 0) return "Hoy";
+    return `Últimos ${rangoDias} días`;
   };
-  const periodoLabel = getPeriodoLabel(rangoDias);
+  const periodoLabel = getPeriodoLabel();
 
   const exportarExcelVentas = async () => {
     try {
@@ -52,18 +53,16 @@ const Ventas = () => {
         return;
       }
 
-      // Construir URL con filtros de fecha si existen
       let url = `http://localhost:3001/exportar/excel/ventas`;
       const params = new URLSearchParams();
-      
-      // Si hay filtros de fecha, usarlos; si no, usar rangoDias
+
       if (fechaInicio || fechaFin) {
         if (fechaInicio) params.append('fechaInicio', fechaInicio);
         if (fechaFin) params.append('fechaFin', fechaFin);
       } else {
         params.append('dias', rangoDias || 0);
       }
-      
+
       url += '?' + params.toString();
 
       const res = await fetch(url, {
@@ -109,14 +108,11 @@ const Ventas = () => {
     }
   };
 
-  // 5. Definimos la función de carga de datos con useCallback
-  // La envolvemos en useCallback para que pueda ser llamada desde realizarVenta sin crear bucles
   const obtenerVentas = useCallback(async () => {
     setLoading(true);
     try {
       let endpoint = "/ventas/hoy";
-      
-      // Si hay filtros de fecha, usarlos directamente; si no, usar rangoDias
+
       if (fechaInicio || fechaFin) {
         endpoint = "/ventas/rango";
         const params = new URLSearchParams();
@@ -124,7 +120,6 @@ const Ventas = () => {
         if (fechaFin) params.append('fechaFin', fechaFin);
         endpoint += '?' + params.toString();
       } else {
-        // Sin filtros de fecha, usar rangoDias
         endpoint = rangoDias === 0 ? "/ventas/hoy" : `/ventas/rango?dias=${rangoDias}`;
       }
 
@@ -140,29 +135,24 @@ const Ventas = () => {
     } finally {
       setLoading(false);
     }
-  }, [rangoDias, fechaInicio, fechaFin]); // Esta función se re-crea si 'rangoDias' o las fechas cambian
+  }, [rangoDias, fechaInicio, fechaFin]);
 
-  // 7. El useEffect ahora solo llama a 'obtenerVentas'
   useEffect(() => {
     obtenerVentas();
-  }, [obtenerVentas]); // Se ejecuta cuando la función (y 'rangoDias' o fechas) cambia
+  }, [obtenerVentas]);
 
-  // Cargar vendedoras al montar (si existe el endpoint /vendedoras)
   useEffect(() => {
     const fetchVendedoras = async () => {
       try {
         const res = await api.get('/vendedoras');
-        // El backend responde { vendedoras: [...] }
         setVendedoras(res.data?.vendedoras || []);
       } catch (e) {
-        // No hacemos nada si el endpoint no existe aún
         console.warn('No se pudieron cargar vendedoras:', e?.response?.status || e.message);
       }
     };
     fetchVendedoras();
   }, []);
 
-  // --- Lógica del formulario (sin cambios) ---
   const handleProductoChange = (index, campo, valor) => {
     const nuevosProductos = [...productos];
     nuevosProductos[index][campo] = valor;
@@ -177,51 +167,37 @@ const Ventas = () => {
     const nuevosProductos = productos.filter((_, i) => i !== index);
     setProductos(nuevosProductos);
   };
-  // ------------------------------------------
 
-const realizarVenta = async () => {
-    // PASO 1: Preparar datos para el VALIDADOR
-    // No convertimos tipos todavía, pasamos el estado crudo para que el validador decida
+  const realizarVenta = async () => {
     const datosParaValidar = {
-      items: productos, 
-      vendedora_id: vendedoraSeleccionada 
+      items: productos,
+      vendedora_id: vendedoraSeleccionada
     };
 
-    // PASO 2: Ejecutar la validación
     const resultadoValidacion = validarVentaFrontend(datosParaValidar);
 
-    // PASO 3: Si hay errores, mostramos y cancelamos
     if (!resultadoValidacion.valid) {
       setFormErrors(resultadoValidacion.errors);
-      return; // <--- AQUÍ SE DETIENE SI HAY ERROR
+      return;
     }
 
-    
-  // PASO 4: Si pasó la validación, preparamos datos para el BACKEND
     const payload = {
       vendedora_id: Number(vendedoraSeleccionada),
-      
-      // CAMBIO CLAVE: Usamos "productos" en vez de "items"
-      // y mantenemos "nombre" y "precio" que es lo que suele esperar el validador
       productos: productos.map(p => ({
         nombre: p.nombre.trim(),
         cantidad: Number(p.cantidad),
         precio: Number(p.precio)
       })),
-      
-      // AGREGADO DE SEGURIDAD: Algunos validadores exigen este campo aunque esté vacío
-      pagos: [] 
+      pagos: []
     };
 
-    // PASO 5: Enviar
     try {
       setLoading(true);
       await api.post('/ventas', payload);
-      
-      // Éxito
-      await obtenerVentas(); 
+
+      await obtenerVentas();
       setProductos([{ nombre: "", cantidad: 1, precio: "" }]);
-      setVendedoraSeleccionada(null); // Reseteamos select vendedora también
+      setVendedoraSeleccionada(null);
       setMostrarFormulario(false);
       setFormErrors([]);
       addNotification('Venta registrada exitosamente', 'success');
@@ -239,59 +215,20 @@ const realizarVenta = async () => {
     <div className="dashboard-content">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
 
-      {/* Filtros de fecha */}
-      <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
-        <h3 style={{ marginBottom: "12px" }}>Filtros de fecha</h3>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            type="date"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid var(--border)",
-            }}
-            placeholder="Fecha inicio"
-          />
-          <input
-            type="date"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid var(--border)",
-            }}
-            placeholder="Fecha fin"
-          />
-          <button
-            onClick={() => {
-              setFechaInicio('');
-              setFechaFin('');
-            }}
-            style={{
-              padding: "8px 14px",
-              backgroundColor: "#6b7280",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            Limpiar filtros
-          </button>
-        </div>
-      </div>
-      
+      {/* Filtros de fecha con el nuevo componente */}
+      <FiltroFechas
+        onFiltrar={(inicio, fin) => {
+          setFechaInicio(inicio);
+          setFechaFin(fin);
+          setRangoDias(null);
+        }}
+        onLimpiar={() => {
+          setFechaInicio('');
+          setFechaFin('');
+          setRangoDias(0);
+        }}
+      />
+
       {/* Formulario de Venta con botón de exportar */}
       <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
@@ -301,7 +238,7 @@ const realizarVenta = async () => {
               Total ({periodoLabel}): <strong>${totalPeriodo.toFixed(2)}</strong> • {cantidadPeriodo} ventas
             </p>
           </div>
-          <button 
+          <button
             onClick={exportarExcelVentas}
             style={{
               padding: "8px 14px",

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import api from '../utils/api';
 import { validarGastoFrontend } from '../utils/validators';
 import { NotificationContainer } from './Notification';
+// Importamos el componente de filtro
+import FiltroFechas from './Filtros/FiltroFechas';
 
 export function Gastos() {
   const [gastos, setGastos] = useState([]);
@@ -42,7 +44,7 @@ export function Gastos() {
         if (fechaFin) params.append('fechaFin', fechaFin);
         endpoint += '?' + params.toString();
       }
-      
+
       const res = await api.get(endpoint);
       setGastos(res.data.gastosHoy || res.data.gastos || []);
     } catch (err) {
@@ -114,7 +116,7 @@ export function Gastos() {
       if (params.toString()) url += '?' + params.toString();
 
       const res = await fetch(url);
-      
+
       if (!res.ok) {
         throw new Error('Error al exportar archivo');
       }
@@ -128,7 +130,7 @@ export function Gastos() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
-      
+
       addNotification("Éxito al exportar archivo", "success");
     } catch (err) {
       console.error('Error al exportar:', err);
@@ -140,58 +142,17 @@ export function Gastos() {
     <div className="dashboard-content">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
 
-      {/* Filtros de fecha */}
-      <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>
-        <h3 style={{ marginBottom: "12px" }}>Filtros de fecha</h3>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            type="date"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid var(--border)",
-            }}
-            placeholder="Fecha inicio"
-          />
-          <input
-            type="date"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid var(--border)",
-            }}
-            placeholder="Fecha fin"
-          />
-          <button
-            onClick={() => {
-              setFechaInicio('');
-              setFechaFin('');
-            }}
-            style={{
-              padding: "8px 14px",
-              backgroundColor: "#6b7280",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            Limpiar filtros
-          </button>
-        </div>
-      </div>
+      {/* Filtros de fecha con el nuevo componente */}
+      <FiltroFechas
+        onFiltrar={(inicio, fin) => {
+          setFechaInicio(inicio);
+          setFechaFin(fin);
+        }}
+        onLimpiar={() => {
+          setFechaInicio('');
+          setFechaFin('');
+        }}
+      />
 
       {/* Formulario para crear gasto */}
       <div className="card" style={{ marginBottom: "20px", padding: "16px" }}>

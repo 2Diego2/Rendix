@@ -7,5 +7,6 @@ router.get("/excel/ventas", exportController.exportarExcelVentas);
 
 router.get("/excel/gastos", exportController.exportarExcelGastos);
 
+router.get("/excel/asistencias", exportController.exportarExcelAsistencias);
 
 module.exports = router;

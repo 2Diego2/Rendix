@@ -2,10 +2,16 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { validarAsistenciaFrontend } from '../utils/validators';
 // Importamos el CSS específico
-import './Css/Asistencias.css'; 
+import './Css/Asistencias.css';
 
 export default function Asistencias() {
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0,10));
+  const [fecha, setFecha] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [registros, setRegistros] = useState([]);
   const [vendedoras, setVendedoras] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +42,25 @@ export default function Asistencias() {
     }
   };
 
+  const handleExportar = async () => {
+    try {
+      const res = await api.get('/exportar/excel/asistencias', {
+        params: { fecha },
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `asistencias_${fecha}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (e) {
+      console.error('Error exportando', e);
+      alert('Error al exportar asistencias');
+    }
+  };
+
   useEffect(() => { buscarPorFecha(); }, []);
 
   const handleRegistrar = async () => {
@@ -59,14 +84,21 @@ export default function Asistencias() {
       <div className="page-header">
         <h3 className="page-title">Gestión de Asistencias</h3>
         <div className="filter-group">
-          <input 
-            type="date" 
+          <input
+            type="date"
             className="input-field"
-            value={fecha} 
-            onChange={(e) => setFecha(e.target.value)} 
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
           />
           <button className="btn btn-secondary" onClick={buscarPorFecha}>
             🔍 Buscar
+          </button>
+          <button
+            className="btn"
+            style={{ marginLeft: '8px', backgroundColor: '#10b981', color: 'white' }}
+            onClick={handleExportar}
+          >
+            📊 Exportar
           </button>
         </div>
       </div>
@@ -75,33 +107,33 @@ export default function Asistencias() {
       <div className="card-box">
         <h4 className="card-header-title">Registrar asistencia rápida</h4>
         <div className="form-row">
-          <select 
+          <select
             className="input-field"
             style={{ minWidth: '200px' }}
-            value={form.vendedora_id} 
+            value={form.vendedora_id}
             onChange={(e) => setForm({ ...form, vendedora_id: e.target.value })}
           >
             <option value="">-- Seleccione vendedora --</option>
             {vendedoras.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
           </select>
-          
+
           <label className="checkbox-label">
-            <input 
-              type="checkbox" 
-              checked={form.presente} 
-              onChange={(e) => setForm({ ...form, presente: e.target.checked })} 
-            /> 
+            <input
+              type="checkbox"
+              checked={form.presente}
+              onChange={(e) => setForm({ ...form, presente: e.target.checked })}
+            />
             <span>Presente</span>
           </label>
-          
-          <input 
+
+          <input
             className="input-field"
             style={{ flex: 1 }}
-            placeholder="Motivo (opcional)" 
-            value={form.motivo} 
-            onChange={(e) => setForm({ ...form, motivo: e.target.value })} 
+            placeholder="Motivo (opcional)"
+            value={form.motivo}
+            onChange={(e) => setForm({ ...form, motivo: e.target.value })}
           />
-          
+
           <button className="btn btn-primary" onClick={handleRegistrar}>
             Registrar
           </button>
@@ -111,9 +143,9 @@ export default function Asistencias() {
       {/* Card de Tabla */}
       <div className="card-box" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-           <h4 className="card-header-title" style={{ margin: 0 }}>Registros ({registros.length})</h4>
+          <h4 className="card-header-title" style={{ margin: 0 }}>Registros ({registros.length})</h4>
         </div>
-        
+
         {loading ? (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--muted-foreground)' }}>Cargando...</div>
         ) : (
@@ -137,11 +169,11 @@ export default function Asistencias() {
                         ? r.vendedora.nombre
                         : '--'}
                     </td>
-                  <td>
-                    { r.fecha
-                        ? r.fecha.slice(0, 10).split('-').reverse().join('/') 
+                    <td>
+                      {r.fecha
+                        ? r.fecha.slice(0, 10).split('-').reverse().join('/')
                         : ''
-                    }
+                      }
                     </td>
                     <td>
                       <span className={`badge ${r.presente ? 'badge-presente' : 'badge-ausente'}`}>
