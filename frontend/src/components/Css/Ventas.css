@@ -15,7 +15,7 @@ input[type=number] {
   max-width: 1400px;
   margin: 0 auto;
   font-family: var(--font-family);
-  color: var(--gray-900);
+  color: var(--foreground);
 }
 
 /* Header */
@@ -29,7 +29,7 @@ input[type=number] {
 .ventas-title {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
+  color: var(--foreground);
   margin: 0;
 }
 
@@ -41,10 +41,10 @@ input[type=number] {
 
 /* Cards */
 .ventas-card {
-  background-color: var(--white);
+  background-color: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border);
   padding: var(--space-6);
   margin-bottom: var(--space-6);
   transition: box-shadow var(--transition-normal);
@@ -64,16 +64,16 @@ input[type=number] {
 .card-title {
   font-size: var(--text-lg);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
+  color: var(--foreground);
   margin: 0;
 }
 
 /* Formulario de Venta */
 .venta-form {
-  background-color: var(--gray-50);
+  background-color: var(--secondary);
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border);
   margin-top: var(--space-4);
 }
 
@@ -91,7 +91,7 @@ input[type=number] {
   align-items: center;
   margin-top: var(--space-6);
   padding-top: var(--space-4);
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid var(--border);
 }
 
 .vendedora-select-group {
@@ -112,21 +112,21 @@ input[type=number] {
 }
 
 .ventas-table th {
-  background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+  background: linear-gradient(to bottom, var(--secondary), var(--border));
   padding: var(--space-3) var(--space-4);
   text-align: left;
   font-weight: var(--font-semibold);
-  color: var(--gray-700);
+  color: var(--muted-foreground);
   text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--border);
 }
 
 .ventas-table td {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--gray-100);
-  color: var(--gray-700);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
   vertical-align: middle;
 }
 
@@ -135,7 +135,7 @@ input[type=number] {
 }
 
 .ventas-table tr:hover td {
-  background-color: var(--gray-50);
+  background-color: var(--secondary);
 }
 
 .item-list {
@@ -166,7 +166,7 @@ input[type=number] {
 .btn-remove {
   color: var(--error-600);
   border: 1px solid var(--error-300);
-  background-color: var(--white);
+  background-color: var(--card);
 }
 
 .btn-remove:hover {

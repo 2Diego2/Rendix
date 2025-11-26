@@ -1,0 +1,133 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.modal-icon-danger {
+    background-color: var(--error-100);
+    color: var(--error-600);
+}
+
+.modal-icon-warning {
+    background-color: var(--warning-100);
+    color: var(--warning-600);
+}
+
+.modal-icon-info {
+    background-color: var(--info-50);
+    color: var(--info-600);
+}
+
+.modal-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--foreground);
+    margin: 0;
+}
+
+/* Message */
+.modal-message {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    margin-bottom: var(--space-6);
+    line-height: 1.5;
+}
+
+/* Actions */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}
+
+.btn-danger {
+    background-color: var(--destructive);
+    color: var(--destructive-foreground);
+    border: 1px solid var(--destructive);
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    /* Hardcoded darker red or use var */
+    opacity: 0.9;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Dark Mode Overrides */
+.dark .modal-icon-danger {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.dark .modal-icon-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.dark .modal-icon-info {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}

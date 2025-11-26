@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import api from "../utils/api";
 import { NotificationContainer } from './Notification';
+import { ConfirmModal } from './ConfirmModal';
 import './Css/Reportes.css';
 
 export function Reportes() {
   const [reportesData, setReportesData] = useState([]);
   const [notifications, setNotifications] = useState([]);
+
+  // Modal de confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   const addNotification = (message, type = 'success') => {
     const id = Date.now() + Math.random();
@@ -27,21 +36,37 @@ export function Reportes() {
   }, []);
 
 
-  const eliminarReporte = async (id) => {
-    if (!confirm("¿Seguro que querés eliminar este reporte?")) return;
-    try {
-      await api.delete(`/reportes/${id}`);
-      setReportesData(prev => prev.filter(r => r.id !== id));
-      addNotification("Reporte eliminado", "success");
-    } catch (err) {
-      console.error("Error eliminando reporte:", err);
-      addNotification("No se pudo eliminar el reporte", "error");
-    }
+  const eliminarReporte = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Reporte',
+      message: '¿Seguro que querés eliminar este reporte?',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/reportes/${id}`);
+          setReportesData(prev => prev.filter(r => r.id !== id));
+          addNotification("Reporte eliminado", "success");
+        } catch (err) {
+          console.error("Error eliminando reporte:", err);
+          addNotification("No se pudo eliminar el reporte", "error");
+        }
+      }
+    });
   };
 
   return (
     <div className="reportes-container">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Eliminar"
+        type="danger"
+      />
 
       <div className="reportes-header">
         <h3 className="reportes-title">Historial de Reportes</h3>

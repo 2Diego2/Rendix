@@ -4,7 +4,7 @@
   max-width: 1400px;
   margin: 0 auto;
   font-family: var(--font-family);
-  color: var(--gray-900);
+  color: var(--foreground);
 }
 
 /* Header de Página */
@@ -18,18 +18,18 @@
 .page-title {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
+  color: var(--foreground);
   letter-spacing: -0.025em;
   margin: 0;
 }
 
 /* Panel de Control */
 .control-panel {
-  background-color: var(--white);
+  background-color: var(--card);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-6);
@@ -50,24 +50,24 @@
 .control-label {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: var(--gray-700);
+  color: var(--muted-foreground);
   margin-bottom: var(--space-2);
 }
 
 .input-control {
   padding: 10px 12px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
-  color: var(--gray-900);
-  background-color: var(--white);
+  color: var(--foreground);
+  background-color: var(--card);
   transition: all var(--transition-fast);
   width: 100%;
   box-sizing: border-box;
 }
 
 .input-control:hover {
-  border-color: var(--gray-400);
+  border-color: var(--border);
 }
 
 .input-control:focus {
@@ -121,21 +121,21 @@
 }
 
 .btn-primary:disabled {
-  background-color: var(--gray-300);
+  background-color: var(--border);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .btn-outline {
-  background-color: var(--white);
-  border-color: var(--gray-300);
-  color: var(--gray-700);
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--muted-foreground);
 }
 
 .btn-outline:hover {
-  background-color: var(--gray-50);
-  border-color: var(--gray-400);
-  color: var(--gray-900);
+  background-color: var(--secondary);
+  border-color: var(--border);
+  color: var(--foreground);
 }
 
 .btn-action-pay {
@@ -152,27 +152,27 @@
 
 /* Nota Informativa */
 .info-note {
-  background-color: var(--info-50);
-  border-left: 4px solid var(--info-600);
+  background-color: var(--secondary);
+  border-left: 4px solid var(--primary-600);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: var(--gray-700);
+  color: var(--muted-foreground);
   margin-bottom: var(--space-6);
   line-height: 1.6;
 }
 
 .info-note strong {
-  color: var(--gray-900);
+  color: var(--foreground);
 }
 
 /* Tabla */
 .table-wrapper {
-  background-color: var(--white);
+  background-color: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
-  overflow: hidden;
+  border: 1px solid var(--border);
+  overflow-x: auto;
 }
 
 .table-header-title {
@@ -180,9 +180,9 @@
   margin: 0;
   font-size: var(--text-lg);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
-  border-bottom: 1px solid var(--gray-200);
-  background-color: var(--gray-50);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--secondary);
 }
 
 .financial-table {
@@ -192,21 +192,21 @@
 }
 
 .financial-table th {
-  background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+  background: var(--secondary);
   padding: var(--space-3) var(--space-4);
   text-align: left;
   font-weight: var(--font-semibold);
-  color: var(--gray-700);
+  color: var(--muted-foreground);
   text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--border);
 }
 
 .financial-table td {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--gray-100);
-  color: var(--gray-700);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
   vertical-align: middle;
 }
 
@@ -215,7 +215,7 @@
 }
 
 .financial-table tr:hover td {
-  background-color: var(--gray-50);
+  background-color: var(--secondary);
 }
 
 .text-right {
@@ -253,7 +253,7 @@
 .empty-state {
   padding: var(--space-12);
   text-align: center;
-  color: var(--gray-500);
+  color: var(--muted-foreground);
   font-size: var(--text-sm);
 }
 

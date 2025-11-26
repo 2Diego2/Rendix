@@ -2,12 +2,21 @@ import React, { useState, useEffect } from "react";
 import api from '../utils/api';
 import { validarGastoFrontend } from '../utils/validators';
 import { NotificationContainer } from './Notification';
+import { ConfirmModal } from './ConfirmModal';
 import FiltroFechas from './Filtros/FiltroFechas';
 import './Css/Gastos.css';
 
 export function Gastos() {
   const [gastos, setGastos] = useState([]);
   const [notifications, setNotifications] = useState([]);
+
+  // Modal de confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   // Formulario para nuevo gasto
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -82,16 +91,22 @@ export function Gastos() {
 
   // Eliminar gasto
   const handleEliminar = (id) => {
-    if (!confirm('¿Seguro que querés eliminar este gasto?')) return;
-    api.delete(`/gastos/${id}`)
-      .then(() => {
-        setGastos(gastos.filter(g => g.id !== id));
-        addNotification('Gasto eliminado', 'success');
-      })
-      .catch(err => {
-        console.error('Error al eliminar gasto:', err);
-        addNotification('Error al eliminar gasto', 'error');
-      });
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Gasto',
+      message: '¿Seguro que querés eliminar este gasto?',
+      onConfirm: () => {
+        api.delete(`/gastos/${id}`)
+          .then(() => {
+            setGastos(gastos.filter(g => g.id !== id));
+            addNotification('Gasto eliminado', 'success');
+          })
+          .catch(err => {
+            console.error('Error al eliminar gasto:', err);
+            addNotification('Error al eliminar gasto', 'error');
+          });
+      }
+    });
   };
 
   // Editar gasto
@@ -157,6 +172,16 @@ export function Gastos() {
   return (
     <div className="gastos-container">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Eliminar"
+        type="danger"
+      />
 
       {/* Header */}
       <div className="gastos-header">

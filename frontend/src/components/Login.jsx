@@ -53,21 +53,19 @@ export default function Login({ onLoginExitoso }) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Bienvenido a Rendix</h2>
-          <p>Inicia sesión para gestionar tu negocio</p>
-        </div>
+      <div className="login-box">
+        <h2>Bienvenido a Rendix
+        </h2>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="login-error">{error}</div>}
+          {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
             <label htmlFor="email">Correo electrónico</label>
             <input
               id="email"
               type="email"
-              className="input-control"
+              className="login-input"
               placeholder="ejemplo@rendix.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -80,7 +78,7 @@ export default function Login({ onLoginExitoso }) {
             <input
               id="password"
               type="password"
-              className="input-control"
+              className="login-input"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -88,7 +86,7 @@ export default function Login({ onLoginExitoso }) {
             />
           </div>
 
-          <button type="submit" className="btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>

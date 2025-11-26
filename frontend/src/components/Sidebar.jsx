@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Css/Sidebar.css';
+import { ConfirmModal } from './ConfirmModal';
 
 const menuItems = [
   {
@@ -50,9 +51,8 @@ const menuItems = [
     label: "Gastos",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="1" x2="12" y2="23"></line>
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-        <line x1="4" y1="4" x2="20" y2="20" stroke="red" strokeWidth="2"></line>
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+        <line x1="1" y1="10" x2="23" y2="10"></line>
       </svg>
     )
   },
@@ -84,14 +84,40 @@ const menuItems = [
 ];
 
 export function Sidebar({ currentPage, onPageChange }) {
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
+
+  const handleLogout = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Cerrar Sesión',
+      message: '¿Estás seguro de que querés cerrar sesión?',
+      confirmText: 'Cerrar Sesión',
+      onConfirm: () => {
+        localStorage.removeItem('token');
+        window.location.reload();
+      }
+    });
+  };
+
   return (
     <div className="sidebar">
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || "Confirmar"}
+        type="danger"
+      />
+
       {/* Logo */}
       <div className="sidebar-logo">
-        {/* Placeholder SVG logo if image fails or as default */}
-        <div style={{ width: 32, height: 32, background: 'var(--primary-600)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-          R
-        </div>
         <h1>Rendix</h1>
       </div>
 
@@ -108,6 +134,20 @@ export function Sidebar({ currentPage, onPageChange }) {
           </button>
         ))}
       </nav>
+
+      {/* Shortcuts Section (Logout) */}
+      <div className="shortcuts-section">
+        <button className="nav-item" onClick={handleLogout} style={{ color: 'var(--error-600)' }}>
+          <span className="icon" style={{ color: 'var(--error-600)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </span>
+          Cerrar Sesión
+        </button>
+      </div>
     </div>
   );
 }

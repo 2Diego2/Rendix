@@ -4,7 +4,7 @@
   max-width: 1200px;
   margin: 0 auto;
   font-family: var(--font-family);
-  color: var(--gray-900);
+  color: var(--foreground);
 }
 
 /* Header */
@@ -20,7 +20,7 @@
 .asistencias-title {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
+  color: var(--foreground);
   margin: 0;
 }
 
@@ -32,24 +32,24 @@
 
 /* Cards */
 .asistencias-card {
-  background-color: var(--white);
+  background-color: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border);
   padding: var(--space-6);
   margin-bottom: var(--space-6);
 }
 
 .card-header {
   margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--gray-100);
+  border-bottom: 1px solid var(--border);
   padding-bottom: var(--space-3);
 }
 
 .card-title {
   font-size: var(--text-lg);
   font-weight: var(--font-bold);
-  color: var(--gray-900);
+  color: var(--card-foreground);
   margin: 0;
 }
 
@@ -74,19 +74,18 @@
   font-size: var(--text-sm);
   cursor: pointer;
   user-select: none;
-  background: var(--gray-50);
+  background: var(--secondary);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
-  border: 1px solid var(--gray-200);
-  color: var(--gray-700);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   height: 42px;
-  /* Match input height */
 }
 
 .checkbox-label input {
   width: 16px;
   height: 16px;
-  accent-color: var(--primary-600);
+  accent-color: var(--primary);
 }
 
 /* Tabla */
@@ -101,21 +100,21 @@
 }
 
 .asistencias-table th {
-  background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+  background: var(--secondary);
   padding: var(--space-3) var(--space-4);
   text-align: left;
   font-weight: var(--font-semibold);
-  color: var(--gray-700);
+  color: var(--muted-foreground);
   text-transform: uppercase;
   font-size: var(--text-xs);
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--border);
 }
 
 .asistencias-table td {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--gray-100);
-  color: var(--gray-700);
+  border-bottom: 1px solid var(--border);
+  color: var(--card-foreground);
   vertical-align: middle;
 }
 
@@ -124,7 +123,7 @@
 }
 
 .asistencias-table tr:hover td {
-  background-color: var(--gray-50);
+  background-color: var(--accent);
 }
 
 /* Badges */
