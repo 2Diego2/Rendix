@@ -1,0 +1,143 @@
+/* Contenedor Principal */
+.vendedoras-container {
+    padding: var(--space-6);
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: var(--font-family);
+    color: var(--gray-900);
+}
+
+/* Header */
+.vendedoras-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.vendedoras-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Cards */
+.vendedoras-card {
+    background-color: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.card-header {
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    padding-bottom: var(--space-3);
+}
+
+.card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Formulario */
+.vendedoras-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.form-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--gray-700);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+/* Tabla */
+.vendedoras-table-wrapper {
+    overflow-x: auto;
+}
+
+.vendedoras-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+.vendedoras-table th {
+    background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-weight: var(--font-semibold);
+    color: var(--gray-700);
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.vendedoras-table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    vertical-align: middle;
+}
+
+.vendedoras-table tr:last-child td {
+    border-bottom: none;
+}
+
+.vendedoras-table tr:hover td {
+    background-color: var(--gray-50);
+}
+
+/* Botones de Acción */
+.action-buttons {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+}
+
+.btn-icon {
+    padding: 6px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    background: none;
+    border: 1px solid transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background-color: var(--gray-100);
+    color: var(--gray-900);
+}
+
+.btn-edit:hover {
+    color: var(--primary-600);
+    background-color: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+.btn-delete:hover {
+    color: var(--error-600);
+    background-color: var(--error-50);
+    border-color: var(--error-200);
+}

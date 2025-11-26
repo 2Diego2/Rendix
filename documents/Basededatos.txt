@@ -1,0 +1,128 @@
+Sentencias que usé para crear la base de datos
+
+
+-- ============================
+-- CREACIÓN DE TABLAS PRINCIPALES
+-- ============================
+
+-- 1. usuarios
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    rol VARCHAR(50) NOT NULL,
+    creado_en TIMESTAMP DEFAULT NOW()
+);
+
+-- 2. vendedoras
+CREATE TABLE vendedoras (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    codigo VARCHAR(50),
+    sueldo_base NUMERIC(12,2) NOT NULL,
+    porcentaje_comision NUMERIC(5,2) NOT NULL,
+    creado_en TIMESTAMP DEFAULT NOW()
+);
+
+-- 3. import_batches (mover antes de ventas)
+CREATE TABLE import_batches (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuarios(id),
+    fecha TIMESTAMP DEFAULT NOW(),
+    archivo_nombre VARCHAR(255) NOT NULL,
+    filas_totales INT NOT NULL,
+    filas_importadas INT NOT NULL,
+    filas_fallidas INT NOT NULL,
+    estado VARCHAR(20) NOT NULL
+);
+
+-- 4. ventas
+CREATE TABLE ventas (
+    id SERIAL PRIMARY KEY,
+    fecha DATE NOT NULL,
+    hora TIME,
+    vendedora_id INT NOT NULL REFERENCES vendedoras(id) ON DELETE CASCADE,
+    total NUMERIC(12,2) NOT NULL,
+    estado VARCHAR(20) CHECK (estado IN ('finalizada','devolucion')) NOT NULL,
+    ticket_num VARCHAR(50) UNIQUE,
+    saldo_pendiente NUMERIC(12,2) DEFAULT 0,
+    batch_id INT REFERENCES import_batches(id)
+);
+
+-- 5. venta_items
+CREATE TABLE venta_items (
+    id SERIAL PRIMARY KEY,
+    venta_id INT NOT NULL REFERENCES ventas(id) ON DELETE CASCADE,
+    descripcion TEXT NOT NULL,
+    cantidad INT NOT NULL CHECK (cantidad > 0),
+    precio_unitario NUMERIC(12,2) NOT NULL,
+    descuento NUMERIC(12,2) DEFAULT 0
+);
+
+-- 6. pagos_venta
+CREATE TABLE pagos_venta (
+    id SERIAL PRIMARY KEY,
+    venta_id INT NOT NULL REFERENCES ventas(id) ON DELETE CASCADE,
+    metodo_pago VARCHAR(20) CHECK (metodo_pago IN ('efectivo','tarjeta','transferencia')) NOT NULL,
+    monto NUMERIC(12,2) NOT NULL,
+    referencia VARCHAR(100)
+);
+
+-- 7. gastos
+CREATE TABLE gastos (
+    id SERIAL PRIMARY KEY,
+    fecha DATE NOT NULL,
+    monto NUMERIC(12,2) NOT NULL,
+    categoria VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    comprobante_url TEXT,
+    periodo VARCHAR(7) NOT NULL, -- formato YYYY-MM
+    creado_por INT NOT NULL REFERENCES usuarios(id)
+);
+
+-- 8. asistencias
+CREATE TABLE asistencias (
+    id SERIAL PRIMARY KEY,
+    vendedora_id INT NOT NULL REFERENCES vendedoras(id) ON DELETE CASCADE,
+    fecha DATE NOT NULL,
+    presente BOOLEAN NOT NULL,
+    motivo TEXT
+);
+
+-- 9. liquidaciones
+CREATE TABLE liquidaciones (
+    id SERIAL PRIMARY KEY,
+    vendedora_id INT NOT NULL REFERENCES vendedoras(id),
+    periodo VARCHAR(7) NOT NULL, -- YYYY-MM
+    sueldo_base NUMERIC(12,2) NOT NULL,
+    comisiones NUMERIC(12,2) NOT NULL,
+    presentismo_descuento NUMERIC(12,2) DEFAULT 0,
+    bonos NUMERIC(12,2) DEFAULT 0,
+    total_pagar NUMERIC(12,2) NOT NULL,
+    estado VARCHAR(20) CHECK (estado IN ('generada','pagada')) NOT NULL,
+    generado_por INT NOT NULL REFERENCES usuarios(id),
+    creado_en TIMESTAMP DEFAULT NOW()
+);
+
+-- 10. auditoria
+CREATE TABLE auditoria (
+    id SERIAL PRIMARY KEY,
+    entidad VARCHAR(100) NOT NULL,
+    entidad_id INT NOT NULL,
+    accion VARCHAR(10) CHECK (accion IN ('create','update','delete')) NOT NULL,
+    usuario_id INT REFERENCES usuarios(id),
+    timestamp TIMESTAMP DEFAULT NOW(),
+    datos_antes JSONB,
+    datos_despues JSONB
+);
+
+-- ============================
+-- ÍNDICES EXTRA (opcional)
+-- ============================
+CREATE INDEX idx_ventas_vendedora ON ventas(vendedora_id);
+CREATE INDEX idx_venta_items_venta ON venta_items(venta_id);
+CREATE INDEX idx_pagos_venta_venta ON pagos_venta(venta_id);
+CREATE INDEX idx_gastos_periodo ON gastos(periodo);
+CREATE INDEX idx_liquidaciones_periodo ON liquidaciones(periodo);
+CREATE INDEX idx_asistencias_fecha ON asistencias(fecha);
