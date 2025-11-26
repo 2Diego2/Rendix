@@ -37,7 +37,7 @@ const registrarGasto = async (req, res) => {
         categoria: categoria || "Adicional",
         fecha: fecha ? new Date(fecha) : new Date(),
         periodo: new Date().toISOString().slice(0, 7), // YYYY-MM
-        creado_por: 1 // TODO: Use req.user.id
+        creado_por: 4 // ID de Diego (admin)
       },
     });
 
@@ -124,9 +124,9 @@ const getGastosHoy = async (req, res) => {
 const getGastosPorRango = async (req, res) => {
   try {
     const { dias, fechaInicio, fechaFin } = req.query;
-    
+
     let whereClause = {};
-    
+
     // Si se proporcionan fechas específicas, usarlas
     if (fechaInicio || fechaFin) {
       whereClause.fecha = {};
@@ -167,10 +167,10 @@ const createGastos = async (req, res) => {
   // El esquema de validación ya validó los campos básicos
   // Asegurar que tenemos los campos necesarios con valores por defecto
   const { monto, detalle, descripcion, categoria, fecha } = req.body;
-  
+
   // Usar descripcion o detalle (compatibilidad)
   const descripcionFinal = descripcion || detalle || "Sin detalle";
-  
+
   // Crear el gasto directamente
   try {
     const nuevoGasto = await prisma.gasto.create({
@@ -180,7 +180,7 @@ const createGastos = async (req, res) => {
         categoria: categoria || "Adicional",
         fecha: fecha ? new Date(fecha) : new Date(),
         periodo: new Date().toISOString().slice(0, 7), // YYYY-MM
-        creado_por: 1 // TODO: Use req.user.id
+        creado_por: 4 // ID de Diego (admin)
       },
     });
 
@@ -215,7 +215,7 @@ const exportarExcelGastos = async (req, res) => {
   try {
     // Obtener parámetros de fecha del query string
     const { fechaInicio, fechaFin } = req.query;
-    
+
     // Construir filtro de fecha
     const whereClause = {};
     if (fechaInicio || fechaFin) {

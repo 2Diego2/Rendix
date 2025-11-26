@@ -34,7 +34,7 @@ async function registrarAsistencia(asistenciaData) {
   }
 
   // Normalizar la fecha a UTC midnight para consistencia
-  const f = new Date(Date.UTC(fechaObj.getFullYear(), fechaObj.getMonth(), fechaObj.getDate()));
+  const f = new Date(Date.UTC(fechaObj.getUTCFullYear(), fechaObj.getUTCMonth(), fechaObj.getUTCDate()));
 
   const created = await asistenciasRepo.create({
     vendedora_id: Number(vendedora_id),
@@ -115,7 +115,7 @@ async function registrarAsistenciasMasivas(asistenciasData) {
       throw err;
     }
 
-    const f = new Date(Date.UTC(fechaObj.getFullYear(), fechaObj.getMonth(), fechaObj.getDate()));
+    const f = new Date(Date.UTC(fechaObj.getUTCFullYear(), fechaObj.getUTCMonth(), fechaObj.getUTCDate()));
     prepared.push({ vendedora_id: Number(a.vendedora_id), fecha: f, presente: !!a.presente, motivo: a.motivo || null });
   }
 

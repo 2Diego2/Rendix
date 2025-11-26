@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { validarLiquidacionFrontend } from '../utils/validators';
 import { NotificationContainer } from './Notification';
+import { ConfirmModal } from './ConfirmModal';
 import './Css/Liquidaciones.css';
 
 // Componente para generar y listar liquidaciones
@@ -25,6 +26,14 @@ export default function Liquidaciones() {
 
   // Notificaciones
   const [notifications, setNotifications] = useState([]);
+
+  // Modal de confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   const addNotification = (message, type = 'success') => {
     const id = Date.now() + Math.random();
@@ -111,16 +120,22 @@ export default function Liquidaciones() {
   };
 
   // Eliminar una liquidación (DELETE /liquidaciones/:id)
-  const eliminarLiquidacion = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar esta liquidación? Podrás volver a generarla.')) return;
-    try {
-      await api.delete(`/liquidaciones/${id}`);
-      addNotification('Liquidación eliminada correctamente', 'success');
-      await listarLiquidaciones();
-    } catch (error) {
-      console.error('Error al eliminar liquidación:', error);
-      addNotification('Error al eliminar liquidación', 'error');
-    }
+  const eliminarLiquidacion = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Liquidación',
+      message: '¿Estás seguro de eliminar esta liquidación? Podrás volver a generarla.',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/liquidaciones/${id}`);
+          addNotification('Liquidación eliminada correctamente', 'success');
+          await listarLiquidaciones();
+        } catch (error) {
+          console.error('Error al eliminar liquidación:', error);
+          addNotification('Error al eliminar liquidación', 'error');
+        }
+      }
+    });
   };
 
   // Exportar a Excel (Funcionalidad de Fran)
@@ -155,6 +170,16 @@ export default function Liquidaciones() {
   return (
     <div className="liquidaciones-container">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Eliminar"
+        type="danger"
+      />
 
       {/* Header */}
       <div className="page-header">
@@ -266,7 +291,7 @@ export default function Liquidaciones() {
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
           <div>
-            <strong>Nota:</strong> El <em>umbral de presentismo</em> es el porcentaje mínimo de días presentes para recibir el bono.
+            <h2>Nota:</h2> El <em>umbral de presentismo</em> es el porcentaje mínimo de días presentes para recibir el bono.
             Si el porcentaje está por debajo del umbral, se aplicará un descuento equivalente.
             <br />
             <em>La tasa bono es el porcentaje adicional que se suma al sueldo base si se cumple el umbral de presentismo.</em>

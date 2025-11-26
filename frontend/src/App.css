@@ -11,36 +11,28 @@
 :root {
   /* Colores principales - Modo Claro */
   --background: #f8fafc;
-  /* Slate 50 */
   --foreground: #0f172a;
-  /* Slate 900 */
 
   --card: #ffffff;
   --card-foreground: #0f172a;
 
   --primary: #2563eb;
-  /* Blue 600 */
   --primary-foreground: #ffffff;
   --primary-hover: #1d4ed8;
-  /* Blue 700 */
 
   --secondary: #f1f5f9;
-  /* Slate 100 */
   --secondary-foreground: #0f172a;
 
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  /* Slate 500 */
 
   --accent: #f1f5f9;
   --accent-foreground: #0f172a;
 
   --destructive: #ef4444;
-  /* Red 500 */
   --destructive-foreground: #ffffff;
 
   --border: #e2e8f0;
-  /* Slate 200 */
   --input: #e2e8f0;
   --ring: #94a3b8;
 
@@ -63,44 +55,77 @@
   --radius-xl: 1rem;
   --radius-full: 9999px;
 
-  /* Sidebar Variables */
-  --sidebar-bg: #0f172a;
-  /* Slate 900 - Dark by default for sidebar */
-  --sidebar-fg: #f8fafc;
-  /* Slate 50 */
-  --sidebar-hover: #1e293b;
-  /* Slate 800 */
-  --sidebar-active: #2563eb;
-  /* Blue 600 */
-  --sidebar-border: #1e293b;
+  /* Sidebar Variables - Modo Claro */
+  --sidebar-bg: #ffffff;
+  --sidebar-fg: #0f172a;
+  --sidebar-hover: #f1f5f9;
+  --sidebar-active: #eff6ff;
+  --sidebar-active-fg: #2563eb;
+  --sidebar-border: #e2e8f0;
 }
 
 .dark {
+  /* Dark Mode Colors */
   --background: #020617;
-  /* Slate 950 */
-  --foreground: #f8fafc;
+  --foreground: #ffffff;
 
   --card: #0f172a;
-  --card-foreground: #f8fafc;
+  --card-foreground: #ffffff;
 
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
 
   --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
+  --secondary-foreground: #ffffff;
 
   --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted-foreground: #e2e8f0;
 
   --accent: #1e293b;
-  --accent-foreground: #f8fafc;
+  --accent-foreground: #ffffff;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #1e293b;
+  --border: #334155;
   --input: #1e293b;
   --ring: #1e293b;
+
+  /* Sidebar Dark Mode */
+  --sidebar-bg: #0f172a;
+  --sidebar-fg: #ffffff;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #1e293b;
+  --sidebar-active-fg: #60a5fa;
+  --sidebar-border: #1e293b;
+
+  /* Native Controls Dark Mode */
+  color-scheme: dark;
+}
+
+/* Global Input Styles for Dark Mode Compatibility */
+input,
+select,
+textarea {
+  color: var(--foreground);
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+/* Calendar/Date Input Specifics */
+::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(100%);
+}
+
+.dark ::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(100%);
+}
+
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="month"],
+.dark input[type="time"] {
+  color-scheme: dark;
 }
 
 body {

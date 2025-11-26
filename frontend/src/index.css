@@ -104,6 +104,61 @@
     --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.dark {
+    /* --- PALETA DE COLORES DARK MODE --- */
+
+    /* Primary (Blue) - Ajustado para contraste en oscuro */
+    --primary-50: #1e3a8a;
+    --primary-100: #1e40af;
+    --primary-500: #3b82f6;
+    --primary-600: #60a5fa;
+    /* Más claro para mejor visibilidad */
+    --primary-700: #93c5fd;
+    --primary-800: #bfdbfe;
+
+    /* Semantic Colors */
+    --success-50: #064e3b;
+    --success-100: #065f46;
+    --success-600: #4ade80;
+    /* Verde más brillante */
+
+    --warning-50: #451a03;
+    --warning-100: #78350f;
+    --warning-600: #fbbf24;
+    /* Amarillo más brillante */
+    --warning-text: #fcd34d;
+
+    --error-50: #450a0a;
+    --error-100: #7f1d1d;
+    --error-300: #f87171;
+    --error-600: #f87171;
+    /* Rojo más claro */
+
+    --info-50: #172554;
+    --info-600: #60a5fa;
+
+    /* Grays (Neutral) - Invertidos para fondo oscuro */
+    --gray-50: #111827;
+    /* Fondo principal oscuro */
+    --gray-100: #1f2937;
+    /* Fondos secundarios */
+    --gray-200: #374151;
+    /* Bordes */
+    --gray-300: #4b5563;
+    /* Bordes inputs */
+    --gray-400: #6b7280;
+    --gray-500: #9ca3af;
+    --gray-600: #d1d5db;
+    /* Texto secundario */
+    --gray-700: #e5e7eb;
+    /* Texto principal */
+    --gray-800: #f3f4f6;
+    --gray-900: #f9fafb;
+    /* Texto destacado */
+    --white: #1f2937;
+    /* Reemplazo de blanco por gris oscuro (paneles) */
+}
+
 body {
     margin: 0;
     font-family: var(--font-family);
@@ -116,4 +171,62 @@ body {
 button {
     font-family: inherit;
     cursor: pointer;
+}
+
+/* --- SCROLLBAR --- */
+/* Works on Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-400) var(--gray-100);
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--gray-400);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--gray-100);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-500);
+}
+
+/* Dark mode overrides for scrollbar */
+.dark,
+.dark * {
+    scrollbar-color: var(--gray-600) var(--gray-50);
+}
+
+.dark::-webkit-scrollbar,
+.dark *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.dark::-webkit-scrollbar-track,
+.dark *::-webkit-scrollbar-track {
+    background: var(--gray-50);
+    border-color: var(--gray-50);
+}
+
+.dark::-webkit-scrollbar-thumb,
+.dark *::-webkit-scrollbar-thumb {
+    background-color: var(--gray-600);
+    border-color: var(--gray-50);
+    border: 2px solid var(--gray-50);
+}
+
+.dark::-webkit-scrollbar-thumb:hover,
+.dark *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-500);
 }

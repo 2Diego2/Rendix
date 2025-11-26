@@ -2,12 +2,21 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { validarVendedoraFrontend } from '../utils/validators';
 import { NotificationContainer } from './Notification';
+import { ConfirmModal } from './ConfirmModal';
 import './Css/Vendedoras.css';
 
 export function Vendedoras() {
   const [vendedoras, setVendedoras] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [notifications, setNotifications] = useState([]);
+
+  // Modal de confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   const [editandoId, setEditandoId] = useState(null);
   const [nombre, setNombre] = useState('');
@@ -86,25 +95,41 @@ export function Vendedoras() {
     }
   }
 
-  async function eliminar(id) {
-    if (!confirm("¿Eliminar vendedora?")) return;
-    try {
-      await api.delete(`/vendedoras/${id}`);
-      cargarVendedoras();
-      addNotification("Vendedora eliminada", "success");
-    } catch (err) {
-      const mensaje = err.response?.data?.error || "Error al eliminar";
-      if (err.response?.status === 400 && mensaje.includes('corriente mes')) {
-        addNotification("No se puede eliminar: tiene ventas este mes", "warning");
-      } else {
-        addNotification(mensaje, "error");
+  function eliminar(id) {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Vendedora',
+      message: '¿Seguro que querés eliminar esta vendedora?',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/vendedoras/${id}`);
+          cargarVendedoras();
+          addNotification("Vendedora eliminada", "success");
+        } catch (err) {
+          const mensaje = err.response?.data?.error || "Error al eliminar";
+          if (err.response?.status === 400 && mensaje.includes('corriente mes')) {
+            addNotification("No se puede eliminar: tiene ventas este mes", "warning");
+          } else {
+            addNotification(mensaje, "error");
+          }
+        }
       }
-    }
+    });
   }
 
   return (
     <div className="vendedoras-container">
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Eliminar"
+        type="danger"
+      />
 
       <div className="vendedoras-header">
         <h3 className="vendedoras-title">Gestión de Vendedoras</h3>

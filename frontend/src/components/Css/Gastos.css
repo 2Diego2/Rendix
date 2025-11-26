@@ -4,7 +4,7 @@
     max-width: 1400px;
     margin: 0 auto;
     font-family: var(--font-family);
-    color: var(--gray-900);
+    color: var(--foreground);
 }
 
 /* Header */
@@ -18,16 +18,16 @@
 .gastos-title {
     font-size: var(--text-2xl);
     font-weight: var(--font-bold);
-    color: var(--gray-900);
+    color: var(--foreground);
     margin: 0;
 }
 
 /* Cards */
 .gastos-card {
-    background-color: var(--white);
+    background-color: var(--card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border);
     padding: var(--space-6);
     margin-bottom: var(--space-6);
 }
@@ -42,7 +42,7 @@
 .card-title {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--gray-900);
+    color: var(--foreground);
     margin: 0;
 }
 
@@ -63,7 +63,7 @@
 .form-label {
     font-size: var(--text-xs);
     font-weight: var(--font-medium);
-    color: var(--gray-700);
+    color: var(--muted-foreground);
 }
 
 /* Tabla */
@@ -78,21 +78,21 @@
 }
 
 .gastos-table th {
-    background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
+    background: var(--secondary);
     padding: var(--space-3) var(--space-4);
     text-align: left;
     font-weight: var(--font-semibold);
-    color: var(--gray-700);
+    color: var(--muted-foreground);
     text-transform: uppercase;
     font-size: var(--text-xs);
     letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--border);
 }
 
 .gastos-table td {
     padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--gray-100);
-    color: var(--gray-700);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted-foreground);
     vertical-align: middle;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .gastos-table tr:hover td {
-    background-color: var(--gray-50);
+    background-color: var(--secondary);
 }
 
 /* Badges de Categoría */
@@ -127,9 +127,9 @@
 }
 
 .badge-adicional {
-    background-color: var(--gray-100);
-    color: var(--gray-700);
-    border: 1px solid var(--gray-200);
+    background-color: var(--secondary);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
 }
 
 /* Botones de Acción */
@@ -145,13 +145,13 @@
     transition: all var(--transition-fast);
     background: none;
     border: 1px solid transparent;
-    color: var(--gray-500);
+    color: var(--muted-foreground);
     cursor: pointer;
 }
 
 .btn-icon:hover {
-    background-color: var(--gray-100);
-    color: var(--gray-900);
+    background-color: var(--secondary);
+    color: var(--foreground);
 }
 
 .btn-edit:hover {
